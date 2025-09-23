@@ -1,25 +1,77 @@
-﻿import { Card, CardContent, CardHeader, CardTitle } from "./ui/card.jsx"
+﻿"use client"
+
+import { useState, useEffect } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card.jsx"
 import { Badge } from "./ui/badge.jsx"
-import { MapPin, Calendar, Heart, Share2 } from "lucide-react"
+import { MapPin, Calendar, Heart, Share2, Loader2 } from "lucide-react"
 import { Button } from "./ui/button.jsx"
-
-
-
-// Mock data - in real app this would come from API
-const mockPetData = {
-  "1": {
-    id: "1",
-    name: "Max",
-    breed: "Golden Retriever", 
-    age: "2 años",
-    gender: "Macho",
-    color: "Dorado",
-    description: "Perro muy amigable y juguetón"
-  }
-}
+import { ApiService } from "../lib/api.js"
 
 export function PetProfile({ petId }) {
-  const pet = mockPetData[petId] || mockPetData["1"]
+  const [pet, setPet] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    const fetchPetDetails = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const petData = await ApiService.fetchPetById(petId)
+        setPet(petData)
+      } catch (error) {
+        console.error('Error fetching pet details:', error)
+        setError(error.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (petId) {
+      fetchPetDetails()
+    }
+  }, [petId])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <span className="ml-2">Cargando información de la mascota...</span>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Card className="w-full max-w-md">
+          <CardContent className="text-center p-6">
+            <p className="text-red-500 mb-4">Error al cargar los datos de la mascota</p>
+            <p className="text-sm text-muted-foreground">{error}</p>
+            <Button 
+              onClick={() => window.location.reload()} 
+              className="mt-4"
+              variant="outline"
+            >
+              Intentar de nuevo
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  if (!pet) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Card className="w-full max-w-md">
+          <CardContent className="text-center p-6">
+            <p className="text-muted-foreground">No se encontró información de esta mascota</p>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -101,54 +153,89 @@ export function PetProfile({ petId }) {
       </Card>
 
       {/* Personalidad */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Personalidad</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
-            {pet.personality.map((trait) => (
-              <Badge key={trait} variant="outline">
-                {trait}
-              </Badge>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {pet.personality && pet.personality.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Personalidad</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              {pet.personality.map((trait) => (
+                <Badge key={trait} variant="outline">
+                  {trait}
+                </Badge>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Historial Médico */}
       <Card>
         <CardHeader>
-          <CardTitle>Historial Médico</CardTitle>
+          <CardTitle>Estado de Salud</CardTitle>
         </CardHeader>
         <CardContent>
           <ul className="space-y-2">
-            {pet.medicalHistory.map((item, index) => (
-              <li key={index} className="flex items-center">
-                <div className="w-2 h-2 bg-primary rounded-full mr-3"></div>
-                {item}
-              </li>
-            ))}
+            {pet.medicalHistory && pet.medicalHistory.length > 0 ? (
+              pet.medicalHistory.map((item, index) => (
+                <li key={index} className="flex items-center">
+                  <div className="w-2 h-2 bg-primary rounded-full mr-3"></div>
+                  {item}
+                </li>
+              ))
+            ) : (
+              <p className="text-muted-foreground">No hay información médica disponible</p>
+            )}
           </ul>
         </CardContent>
       </Card>
 
-      {/* Requisitos */}
+      {/* Información de Contacto */}
       <Card>
         <CardHeader>
-          <CardTitle>Requisitos para Adopción</CardTitle>
+          <CardTitle>Información de Contacto</CardTitle>
         </CardHeader>
         <CardContent>
-          <ul className="space-y-2">
-            {pet.requirements.map((requirement, index) => (
-              <li key={index} className="flex items-center">
-                <div className="w-2 h-2 bg-accent rounded-full mr-3"></div>
-                {requirement}
-              </li>
-            ))}
-          </ul>
+          <div className="space-y-3">
+            <div>
+              <p className="text-sm text-muted-foreground">Refugio</p>
+              <p className="font-medium">{pet.shelter}</p>
+            </div>
+            {pet.phone && (
+              <div>
+                <p className="text-sm text-muted-foreground">Teléfono</p>
+                <p className="font-medium">{pet.phone}</p>
+              </div>
+            )}
+            {pet.email && (
+              <div>
+                <p className="text-sm text-muted-foreground">Email</p>
+                <p className="font-medium">{pet.email}</p>
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
+
+      {/* Requisitos - Solo mostrar si hay datos */}
+      {pet.requirements && pet.requirements.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Requisitos para Adopción</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {pet.requirements.map((requirement, index) => (
+                <li key={index} className="flex items-center">
+                  <div className="w-2 h-2 bg-accent rounded-full mr-3"></div>
+                  {requirement}
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

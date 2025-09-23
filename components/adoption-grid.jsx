@@ -1,10 +1,10 @@
 ﻿"use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { AdoptionCard } from "./adoption-card.jsx"
 import { ApiService } from "../lib/api.js"
 
-export function AdoptionGrid() {
+export function AdoptionGrid({ filters }) {
   const [pets, setPets] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -27,12 +27,46 @@ export function AdoptionGrid() {
     fetchPets()
   }, [])
 
-  const sortedPets = [...pets].sort((a, b) => {
+  // Function to extract numeric age from string like "2 años"
+  const extractAge = (ageString) => {
+    const match = ageString?.match(/(\d+)/)
+    return match ? parseInt(match[1]) : 0
+  }
+
+  // Apply filters to pets
+  const filteredPets = useMemo(() => {
+    if (!filters) return pets
+
+    return pets.filter(pet => {
+      // Species filter
+      if (filters.species && filters.species !== "all" && pet.species !== filters.species) {
+        return false
+      }
+
+      // Gender filter
+      if (filters.gender && filters.gender !== "all" && pet.gender !== filters.gender) {
+        return false
+      }
+
+      // Age filter
+      if (filters.ageRange) {
+        const petAge = extractAge(pet.age)
+        const [minAge, maxAge] = filters.ageRange
+        if (petAge < minAge || (maxAge < 15 && petAge > maxAge)) {
+          return false
+        }
+      }
+
+      return true
+    })
+  }, [pets, filters])
+
+  const sortedPets = [...filteredPets].sort((a, b) => {
     switch (sortBy) {
       case "age-asc":
-        return parseInt(a.age) - parseInt(b.age)
+        return extractAge(a.age) - extractAge(b.age)
       case "age-desc":
-        return parseInt(b.age) - parseInt(a.age)
+        return extractAge(b.age) - extractAge(a.age)
       case "name":
         return a.name.localeCompare(b.name)
       default:
@@ -76,7 +110,9 @@ export function AdoptionGrid() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <p className="text-muted-foreground">{pets.length} mascotas disponibles</p>
+        <p className="text-muted-foreground">
+          {filteredPets.length} de {pets.length} mascotas {filters && (filters.species !== "all" || filters.gender !== "all" || (filters.ageRange[0] > 0 || filters.ageRange[1] < 15)) ? "encontradas" : "disponibles"}
+        </p>
         <select 
           className="border border-border rounded-md px-3 py-2 text-sm"
           value={sortBy}
@@ -91,7 +127,14 @@ export function AdoptionGrid() {
 
       {sortedPets.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-muted-foreground">No hay mascotas disponibles para adopción en este momento.</p>
+          {pets.length === 0 ? (
+            <p className="text-muted-foreground">No hay mascotas disponibles para adopción en este momento.</p>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-muted-foreground">No se encontraron mascotas con los filtros seleccionados.</p>
+              <p className="text-sm text-muted-foreground">Intenta ajustar los criterios de búsqueda.</p>
+            </div>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
