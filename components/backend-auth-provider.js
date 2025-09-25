@@ -141,6 +141,26 @@ export function AuthProvider({ children }) {
     }
   }
 
+  const registerByType = async (userData, userType) => {
+    try {
+      const result = await ApiService.registerByType(userData, userType)
+      
+      if (result.token) {
+        ApiService.setToken(result.token)
+      }
+      
+      if (result.user) {
+        ApiService.setUser(result.user)
+        setUser(result.user)
+      }
+      
+      return result
+    } catch (error) {
+      console.error('Error registering by type:', error)
+      throw error
+    }
+  }
+
   const refreshUserProfile = async () => {
     try {
       const profile = await ApiService.getUserProfile()
@@ -161,6 +181,7 @@ export function AuthProvider({ children }) {
     signOut,
     signIn,
     register,
+    registerByType,
     refreshUserProfile,
   }
 
