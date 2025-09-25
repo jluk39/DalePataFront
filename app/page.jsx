@@ -1,5 +1,5 @@
 ﻿import { Sidebar } from "../components/sidebar.js"
-import { Header } from "../components/header.js"
+import { Header } from "../components/header-debug.js"
 import { HeroSection } from "../components/hero-section.jsx"
 import { PetGrid } from "../components/pet-grid.jsx"
 

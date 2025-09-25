@@ -2,7 +2,7 @@
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import { Analytics } from "@vercel/analytics/next"
-import { AuthProvider } from "../components/auth-provider.js"
+import { AuthProvider } from "../components/backend-auth-provider.js"
 import "./globals.css"
 
 export const metadata = {

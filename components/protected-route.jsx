@@ -2,7 +2,7 @@
 
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "./auth-provider.js"
+import { useAuth } from "./backend-auth-provider.js"
 
 export function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
