@@ -9,11 +9,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu.jsx"
-import { useAuth } from "./auth-provider.js"
+import { useAuth } from "./backend-auth-provider.js"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 
 export function Header() {
   const { user, signOut } = useAuth()
+  const router = useRouter()
+
+  const handleProfileClick = () => {
+    router.push("/perfil")
+  }
 
   return (
     <header className="bg-white border-b border-border px-6 py-4 flex items-center justify-between">
@@ -32,21 +38,31 @@ export function Header() {
         {user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="relative">
                 <User className="w-5 h-5" />
+                <span className="sr-only">Menú de usuario</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>
+            <DropdownMenuContent align="end" className="w-56">
+              <div className="px-2 py-1.5 text-sm font-medium">
+                {user.nombre} {user.apellido}
+              </div>
+              <div className="px-2 py-1.5 text-xs text-muted-foreground">
+                {user.email}
+              </div>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleProfileClick} className="cursor-pointer">
                 <User className="w-4 h-4 mr-2" />
                 Mi Perfil
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
                 <Settings className="w-4 h-4 mr-2" />
                 Configuración
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={signOut}>Cerrar Sesión</DropdownMenuItem>
+              <DropdownMenuItem onClick={signOut} className="cursor-pointer text-red-600">
+                Cerrar Sesión
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (

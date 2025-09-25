@@ -1,7 +1,10 @@
-﻿import { updateSession } from "./lib/supabase/middleware.js"
+﻿import { NextResponse } from "next/server"
 
+// Middleware simplificado - sin protección de rutas
+// La autenticación se maneja en el frontend con backend API
 export async function middleware(request) {
-  return await updateSession(request)
+  // Solo permitir que todas las rutas pasen sin restricciones
+  return NextResponse.next()
 }
 
 export const config = {
