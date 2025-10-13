@@ -125,24 +125,24 @@ export function PetProfile({ petId }) {
         <CardContent>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-muted-foreground">Raza</p>
-              <p className="font-medium">{pet.breed}</p>
-            </div>
-            <div>
               <p className="text-sm text-muted-foreground">Edad</p>
               <p className="font-medium">{pet.age}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Género</p>
+              <p className="text-sm text-muted-foreground">Especie</p>
+              <p className="font-medium">{pet.species}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Sexo</p>
               <p className="font-medium">{pet.gender}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Castrado</p>
+              <p className="font-medium">{pet.sterilized ? 'Sí' : 'No especificado'}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Tamaño</p>
               <p className="font-medium">{pet.size}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Peso</p>
-              <p className="font-medium">{pet.weight}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Color</p>
