@@ -45,11 +45,6 @@ export function PetCard({ pet, showFavoriteButton = true }) {
             <p className="text-sm text-muted-foreground">
               {pet.age} • {pet.gender}
             </p>
-            {pet.breed && pet.species && (
-              <p className="text-xs text-muted-foreground">
-                {pet.species} - {pet.breed}
-              </p>
-            )}
           </div>
 
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -82,7 +77,7 @@ export function PetCard({ pet, showFavoriteButton = true }) {
           </div>
 
           <p className="text-sm text-muted-foreground line-clamp-2">
-            {pet.description || `${pet.species} en busca de un hogar`}
+            {pet.species} en busca de un hogar lleno de amor
           </p>
         </div>
       </CardContent>

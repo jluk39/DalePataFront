@@ -35,7 +35,7 @@ export function AdoptionCard({ pet }) {
 
         <div className="space-y-1 text-sm text-muted-foreground mb-3">
           <p>
-            {pet.breed || pet.species} • {pet.age} • {pet.gender}
+            {pet.age} • {pet.gender}
           </p>
           {pet.shelter && (
             <p className="text-xs">
@@ -45,7 +45,7 @@ export function AdoptionCard({ pet }) {
         </div>
 
         <p className="text-sm text-foreground mb-3 line-clamp-2">
-          {pet.description || `${pet.species || 'Mascota'} en busca de un hogar amoroso`}
+          {pet.species || 'Mascota'} en busca de un hogar lleno de amor
         </p>
 
         <div className="flex items-center justify-between">
