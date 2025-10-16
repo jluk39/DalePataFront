@@ -1,7 +1,7 @@
 ﻿import { Sidebar } from "../components/sidebar.js"
 import { Header } from "../components/header-debug.js"
 import { HeroSection } from "../components/hero-section.jsx"
-import { PetGrid } from "../components/pet-grid.jsx"
+import { MyPetsGrid } from "../components/my-pets-grid.jsx"
 
 export default function HomePage() {
   return (
@@ -11,7 +11,7 @@ export default function HomePage() {
         <Header />
         <main className="flex-1 p-6">
           <HeroSection />
-          <PetGrid />
+          <MyPetsGrid />
         </main>
       </div>
     </div>
