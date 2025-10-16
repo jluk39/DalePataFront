@@ -16,8 +16,10 @@ import {
   DialogTitle,
 } from "../../../../components/ui/dialog.jsx"
 import { ApiService } from "../../../../lib/api.js"
+import { useAuth } from "../../../../components/backend-auth-provider.js"
 
 export default function AdoptionRequests() {
+  const { user } = useAuth()
   const [requests, setRequests] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -31,7 +33,16 @@ export default function AdoptionRequests() {
       try {
         setLoading(true)
         setError(null)
+        
+        // El backend ya filtra por refugio_id usando el token JWT
+        // No necesitamos filtrar en el frontend
         const requestsData = await ApiService.getAdoptionRequests()
+        
+        console.log('📋 Solicitudes de adopción cargadas:', {
+          total: requestsData.length,
+          refugio_id: user?.id
+        })
+        
         setRequests(requestsData)
       } catch (error) {
         console.error('Error fetching adoption requests:', error)
@@ -42,8 +53,10 @@ export default function AdoptionRequests() {
       }
     }
 
-    fetchRequests()
-  }, [])
+    if (user) {
+      fetchRequests()
+    }
+  }, [user])
 
   const filteredRequests = requests.filter((request) => {
     const matchesSearch =
@@ -70,11 +83,39 @@ export default function AdoptionRequests() {
   }
 
   const handleApprove = async (requestId) => {
-    alert('Funcionalidad no disponible: endpoint de adopciones no implementado')
+    try {
+      await ApiService.updateAdoptionRequestStatus(requestId, 'aprobada', 'Solicitud aprobada por el refugio')
+      
+      // Actualizar el estado local
+      setRequests(requests.map(req => 
+        req.id === requestId 
+          ? { ...req, estado: 'aprobada' }
+          : req
+      ))
+      
+      alert('Solicitud aprobada exitosamente')
+    } catch (error) {
+      console.error('Error approving request:', error)
+      alert('Error al aprobar la solicitud: ' + error.message)
+    }
   }
 
   const handleReject = async (requestId) => {
-    alert('Funcionalidad no disponible: endpoint de adopciones no implementado')
+    try {
+      await ApiService.updateAdoptionRequestStatus(requestId, 'rechazada', 'Solicitud rechazada por el refugio')
+      
+      // Actualizar el estado local
+      setRequests(requests.map(req => 
+        req.id === requestId 
+          ? { ...req, estado: 'rechazada' }
+          : req
+      ))
+      
+      alert('Solicitud rechazada exitosamente')
+    } catch (error) {
+      console.error('Error rejecting request:', error)
+      alert('Error al rechazar la solicitud: ' + error.message)
+    }
   }
 
   const openDetailModal = (request) => {
@@ -358,24 +399,36 @@ export default function AdoptionRequests() {
 
               {/* Detailed Information */}
               <div className="space-y-4">
+                {selectedRequest.comentario && (
+                  <div>
+                    <h4 className="text-white font-medium mb-2">Comentario del solicitante</h4>
+                    <p className="text-slate-300 bg-slate-800 p-3 rounded-lg">{selectedRequest.comentario}</p>
+                  </div>
+                )}
+                
+                {selectedRequest.mascota_detalles && (
+                  <div>
+                    <h4 className="text-white font-medium mb-2">Detalles de la mascota</h4>
+                    <div className="text-slate-300 bg-slate-800 p-3 rounded-lg space-y-1">
+                      {selectedRequest.mascota_detalles.especie && (
+                        <p><span className="font-medium">Especie:</span> {selectedRequest.mascota_detalles.especie}</p>
+                      )}
+                      {selectedRequest.mascota_detalles.raza && (
+                        <p><span className="font-medium">Raza:</span> {selectedRequest.mascota_detalles.raza}</p>
+                      )}
+                      {selectedRequest.mascota_detalles.edad_anios && (
+                        <p><span className="font-medium">Edad:</span> {selectedRequest.mascota_detalles.edad_anios}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
                 <div>
-                  <h4 className="text-white font-medium mb-2">Experiencia con mascotas</h4>
-                  <p className="text-slate-300 bg-slate-800 p-3 rounded-lg">{selectedRequest.experiencia_mascotas}</p>
-                </div>
-
-                <div>
-                  <h4 className="text-white font-medium mb-2">Motivo de adopción</h4>
-                  <p className="text-slate-300 bg-slate-800 p-3 rounded-lg">{selectedRequest.motivo_adopcion}</p>
-                </div>
-
-                <div>
-                  <h4 className="text-white font-medium mb-2">Situación de vivienda</h4>
-                  <p className="text-slate-300 bg-slate-800 p-3 rounded-lg">{selectedRequest.situacion_vivienda}</p>
-                </div>
-
-                <div>
-                  <h4 className="text-white font-medium mb-2">Disponibilidad de tiempo</h4>
-                  <p className="text-slate-300 bg-slate-800 p-3 rounded-lg">{selectedRequest.disponibilidad_tiempo}</p>
+                  <h4 className="text-white font-medium mb-2">Información de la solicitud</h4>
+                  <div className="text-slate-300 bg-slate-800 p-3 rounded-lg space-y-1">
+                    <p><span className="font-medium">Tipo de solicitante:</span> {selectedRequest.adoptante_tipo || 'Usuario'}</p>
+                    <p><span className="font-medium">Fecha de solicitud:</span> {new Date(selectedRequest.fecha_solicitud).toLocaleString('es-ES')}</p>
+                  </div>
                 </div>
               </div>
 

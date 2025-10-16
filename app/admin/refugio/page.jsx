@@ -28,9 +28,20 @@ export default function AdminDashboard() {
         // Fetch pets data to calculate stats
         const petsData = await ApiService.getAdminPets()
         
-        // Calculate stats from pets data
-        const totalPets = petsData.length
-        const availablePets = petsData.filter(pet => pet.en_adopcion).length
+        // Filtrar mascotas por refugio_id del usuario logueado
+        const filteredPets = user?.id 
+          ? petsData.filter(pet => pet.refugio_id === user.id)
+          : petsData
+        
+        console.log('📊 Estadísticas filtradas por refugio:', {
+          total: petsData.length,
+          filtradas: filteredPets.length,
+          refugio_id: user?.id
+        })
+        
+        // Calculate stats from filtered pets data
+        const totalPets = filteredPets.length
+        const availablePets = filteredPets.filter(pet => pet.en_adopcion).length
         
         setStats({
           totalPets: totalPets,
@@ -53,8 +64,10 @@ export default function AdminDashboard() {
       }
     }
 
-    fetchStats()
-  }, [])
+    if (user) {
+      fetchStats()
+    }
+  }, [user])
 
   const statCards = [
     {

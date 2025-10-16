@@ -10,8 +10,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../components/ui/select.jsx"
 import AddPetModal from "../../../../components/admin/add-pet-modal.jsx"
 import { ApiService } from "../../../../lib/api.js"
+import { useAuth } from "../../../../components/backend-auth-provider.js"
 
 export default function PetManagement() {
+  const { user } = useAuth()
   const [pets, setPets] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -25,7 +27,19 @@ export default function PetManagement() {
         setLoading(true)
         setError(null)
         const petsData = await ApiService.getAdminPets()
-        setPets(petsData)
+        
+        // Filtrar mascotas por refugio_id del usuario logueado
+        const filteredPets = user?.id 
+          ? petsData.filter(pet => pet.refugio_id === user.id)
+          : petsData
+        
+        console.log('🐾 Mascotas filtradas por refugio:', {
+          total: petsData.length,
+          filtradas: filteredPets.length,
+          refugio_id: user?.id
+        })
+        
+        setPets(filteredPets)
       } catch (error) {
         console.error('Error fetching pets:', error)
         setError(error.message)
@@ -35,8 +49,10 @@ export default function PetManagement() {
       }
     }
 
-    fetchPets()
-  }, [])
+    if (user) {
+      fetchPets()
+    }
+  }, [user])
 
   const filteredPets = pets.filter((pet) => {
     const matchesSearch =
