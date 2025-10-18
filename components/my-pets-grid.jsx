@@ -26,14 +26,14 @@ export function MyPetsGrid() {
 
       try {
         setLoading(true)
-        // Obtener todas las mascotas y filtrar por el usuario actual
-        const allPets = await ApiService.fetchPets()
-        // Filtrar mascotas que pertenecen al usuario actual
-        const myPets = allPets.filter(pet => pet.userId === user.id)
+        
+        // Usar el nuevo endpoint específico para mascotas del usuario
+        const myPets = await ApiService.fetchMyPets()
+        
         setPets(myPets)
       } catch (err) {
+        console.error('Error al cargar mis mascotas:', err.message)
         setError(err.message)
-        console.error('Failed to fetch my pets:', err)
       } finally {
         setLoading(false)
       }

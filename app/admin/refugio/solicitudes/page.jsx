@@ -84,7 +84,7 @@ export default function AdoptionRequests() {
 
   const handleApprove = async (requestId) => {
     try {
-      await ApiService.updateAdoptionRequestStatus(requestId, 'aprobada', 'Solicitud aprobada por el refugio')
+      const result = await ApiService.updateAdoptionRequestStatus(requestId, 'aprobada', 'Solicitud aprobada por el refugio')
       
       // Actualizar el estado local
       setRequests(requests.map(req => 
@@ -93,7 +93,12 @@ export default function AdoptionRequests() {
           : req
       ))
       
-      alert('Solicitud aprobada exitosamente')
+      // Mensaje específico si la mascota fue adoptada
+      if (result.data?.mascota_adoptada) {
+        alert('¡Solicitud aprobada exitosamente! La mascota ha sido adoptada y asignada al usuario.')
+      } else {
+        alert('Solicitud aprobada exitosamente')
+      }
     } catch (error) {
       console.error('Error approving request:', error)
       alert('Error al aprobar la solicitud: ' + error.message)
@@ -233,24 +238,24 @@ export default function AdoptionRequests() {
       {/* Requests Table */}
       <Card className="bg-card border-border shadow-sm">
         <CardHeader>
-          <CardTitle className="text-white">Solicitudes de Adopción</CardTitle>
+          <CardTitle className="text-foreground">Solicitudes de Adopción</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-slate-800">
-                  <TableHead className="text-slate-300">Mascota</TableHead>
-                  <TableHead className="text-slate-300">Adoptante</TableHead>
-                  <TableHead className="text-slate-300">Contacto</TableHead>
-                  <TableHead className="text-slate-300">Estado</TableHead>
-                  <TableHead className="text-slate-300">Fecha</TableHead>
-                  <TableHead className="text-slate-300">Acciones</TableHead>
+                <TableRow className="border-border">
+                  <TableHead className="text-foreground">Mascota</TableHead>
+                  <TableHead className="text-foreground">Adoptante</TableHead>
+                  <TableHead className="text-foreground">Contacto</TableHead>
+                  <TableHead className="text-foreground">Estado</TableHead>
+                  <TableHead className="text-foreground">Fecha</TableHead>
+                  <TableHead className="text-foreground">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredRequests.map((request) => (
-                  <TableRow key={request.id} className="border-slate-800">
+                  <TableRow key={request.id} className="border-border">
                     <TableCell>
                       <div className="flex items-center space-x-3">
                         <img
@@ -259,30 +264,30 @@ export default function AdoptionRequests() {
                           className="w-12 h-12 rounded-lg object-cover"
                         />
                         <div>
-                          <p className="text-white font-medium">{request.mascota_nombre}</p>
+                          <p className="text-foreground font-medium">{request.mascota_nombre}</p>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div>
-                        <p className="text-white font-medium">{request.adoptante_nombre}</p>
-                        <p className="text-slate-400 text-sm">{request.adoptante_direccion}</p>
+                        <p className="text-foreground font-medium">{request.adoptante_nombre}</p>
+                        <p className="text-muted-foreground text-sm">{request.adoptante_direccion}</p>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="space-y-1">
                         <div className="flex items-center space-x-2">
-                          <Mail className="w-3 h-3 text-slate-400" />
-                          <span className="text-slate-300 text-sm">{request.adoptante_email}</span>
+                          <Mail className="w-3 h-3 text-muted-foreground" />
+                          <span className="text-foreground text-sm">{request.adoptante_email}</span>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Phone className="w-3 h-3 text-slate-400" />
-                          <span className="text-slate-300 text-sm">{request.adoptante_telefono}</span>
+                          <Phone className="w-3 h-3 text-muted-foreground" />
+                          <span className="text-foreground text-sm">{request.adoptante_telefono}</span>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>{getStatusBadge(request.estado)}</TableCell>
-                    <TableCell className="text-slate-400">
+                    <TableCell className="text-muted-foreground">
                       {new Date(request.fecha_solicitud).toLocaleDateString("es-ES")}
                     </TableCell>
                     <TableCell>
@@ -290,7 +295,7 @@ export default function AdoptionRequests() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="text-slate-400 hover:text-white hover:bg-slate-800"
+                          className="text-muted-foreground hover:text-foreground hover:bg-muted"
                           onClick={() => openDetailModal(request)}
                         >
                           <Eye className="w-4 h-4" />
@@ -300,7 +305,7 @@ export default function AdoptionRequests() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="text-green-400 hover:text-green-300 hover:bg-green-500/10"
+                              className="text-green-600 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-950"
                               onClick={() => handleApprove(request.id)}
                             >
                               <Check className="w-4 h-4" />
@@ -308,7 +313,7 @@ export default function AdoptionRequests() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                              className="text-red-600 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
                               onClick={() => handleReject(request.id)}
                             >
                               <X className="w-4 h-4" />
@@ -344,7 +349,7 @@ export default function AdoptionRequests() {
         <DialogContent className="bg-card border-border text-foreground max-w-2xl">
           <DialogHeader>
             <DialogTitle>Detalles de la Solicitud</DialogTitle>
-            <DialogDescription className="text-slate-400">
+            <DialogDescription className="text-muted-foreground">
               Información completa del adoptante y la solicitud
             </DialogDescription>
           </DialogHeader>
@@ -353,7 +358,7 @@ export default function AdoptionRequests() {
             <div className="space-y-6">
               {/* Pet and Adopter Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card className="bg-slate-800 border-slate-700">
+                <Card className="bg-muted border-border">
                   <CardHeader>
                     <CardTitle className="text-lg">Mascota</CardTitle>
                   </CardHeader>
@@ -365,33 +370,33 @@ export default function AdoptionRequests() {
                         className="w-16 h-16 rounded-lg object-cover"
                       />
                       <div>
-                        <p className="text-white font-medium text-lg">{selectedRequest.mascota_nombre}</p>
+                        <p className="text-foreground font-medium text-lg">{selectedRequest.mascota_nombre}</p>
                         {getStatusBadge(selectedRequest.estado)}
                       </div>
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card className="bg-slate-800 border-slate-700">
+                <Card className="bg-muted border-border">
                   <CardHeader>
                     <CardTitle className="text-lg">Adoptante</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex items-center space-x-2">
-                      <User className="w-4 h-4 text-slate-400" />
-                      <span className="text-white">{selectedRequest.adoptante_nombre}</span>
+                      <User className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-foreground">{selectedRequest.adoptante_nombre}</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Mail className="w-4 h-4 text-slate-400" />
-                      <span className="text-slate-300">{selectedRequest.adoptante_email}</span>
+                      <Mail className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-foreground">{selectedRequest.adoptante_email}</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Phone className="w-4 h-4 text-slate-400" />
-                      <span className="text-slate-300">{selectedRequest.adoptante_telefono}</span>
+                      <Phone className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-foreground">{selectedRequest.adoptante_telefono}</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <MapPin className="w-4 h-4 text-slate-400" />
-                      <span className="text-slate-300">{selectedRequest.adoptante_direccion}</span>
+                      <MapPin className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-foreground">{selectedRequest.adoptante_direccion}</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -401,15 +406,15 @@ export default function AdoptionRequests() {
               <div className="space-y-4">
                 {selectedRequest.comentario && (
                   <div>
-                    <h4 className="text-white font-medium mb-2">Comentario del solicitante</h4>
-                    <p className="text-slate-300 bg-slate-800 p-3 rounded-lg">{selectedRequest.comentario}</p>
+                    <h4 className="text-foreground font-medium mb-2">Comentario del solicitante</h4>
+                    <p className="text-foreground bg-muted p-3 rounded-lg">{selectedRequest.comentario}</p>
                   </div>
                 )}
                 
                 {selectedRequest.mascota_detalles && (
                   <div>
-                    <h4 className="text-white font-medium mb-2">Detalles de la mascota</h4>
-                    <div className="text-slate-300 bg-slate-800 p-3 rounded-lg space-y-1">
+                    <h4 className="text-foreground font-medium mb-2">Detalles de la mascota</h4>
+                    <div className="text-foreground bg-muted p-3 rounded-lg space-y-1">
                       {selectedRequest.mascota_detalles.especie && (
                         <p><span className="font-medium">Especie:</span> {selectedRequest.mascota_detalles.especie}</p>
                       )}
@@ -424,8 +429,8 @@ export default function AdoptionRequests() {
                 )}
                 
                 <div>
-                  <h4 className="text-white font-medium mb-2">Información de la solicitud</h4>
-                  <div className="text-slate-300 bg-slate-800 p-3 rounded-lg space-y-1">
+                  <h4 className="text-foreground font-medium mb-2">Información de la solicitud</h4>
+                  <div className="text-foreground bg-muted p-3 rounded-lg space-y-1">
                     <p><span className="font-medium">Tipo de solicitante:</span> {selectedRequest.adoptante_tipo || 'Usuario'}</p>
                     <p><span className="font-medium">Fecha de solicitud:</span> {new Date(selectedRequest.fecha_solicitud).toLocaleString('es-ES')}</p>
                   </div>
@@ -434,9 +439,9 @@ export default function AdoptionRequests() {
 
               {/* Actions */}
               {selectedRequest.estado === "pendiente" && (
-                <div className="flex space-x-3 pt-4 border-t border-slate-700">
+                <div className="flex space-x-3 pt-4 border-t border-border">
                   <Button
-                    className="flex-1 bg-green-600 hover:bg-green-700"
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white"
                     onClick={() => {
                       handleApprove(selectedRequest.id)
                       setShowDetailModal(false)
@@ -447,7 +452,7 @@ export default function AdoptionRequests() {
                   </Button>
                   <Button
                     variant="outline"
-                    className="flex-1 border-red-600 text-red-400 hover:bg-red-500/10 bg-transparent"
+                    className="flex-1 border-red-600 text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
                     onClick={() => {
                       handleReject(selectedRequest.id)
                       setShowDetailModal(false)

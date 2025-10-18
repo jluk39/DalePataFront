@@ -9,10 +9,15 @@ import { Textarea } from "./ui/textarea.jsx"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select.jsx"
 import { Checkbox } from "./ui/checkbox.jsx"
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group.jsx"
+import { ApiService } from "../lib/api.js"
+import { useAuth } from "./backend-auth-provider.js"
 
 export function AdoptionForm({ petId }) {
+  const { user } = useAuth()
   const [step, setStep] = useState(1)
   const [errors, setErrors] = useState({})
+  const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
   const [formData, setFormData] = useState({
     housingType: "",
     hasYard: "",
@@ -72,13 +77,101 @@ export function AdoptionForm({ petId }) {
     }
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const validationErrors = validateStep3()
     setErrors(validationErrors)
+    
     if (Object.keys(validationErrors).length === 0) {
-      console.log("Adoption application submitted:", formData)
-      alert("¡Solicitud de adopción enviada! Te contactaremos pronto.")
+      // Verificar que el usuario esté autenticado
+      if (!user) {
+        setErrors({ submit: 'Debes iniciar sesión para enviar una solicitud de adopción' })
+        return
+      }
+
+      setLoading(true)
+      
+      try {
+        console.log("📤 Enviando solicitud de adopción:", { petId, formData, user: user.email })
+        
+        const result = await ApiService.createAdoptionRequest(petId, formData)
+        
+        console.log("✅ Solicitud enviada exitosamente:", result)
+        setSuccess(true)
+        
+        // Limpiar formulario
+        setFormData({
+          housingType: "",
+          hasYard: "",
+          landlordPermission: false,
+          petExperience: "",
+          currentPets: "",
+          adoptionReason: "",
+          timeCommitment: "",
+        })
+        
+        // Opcional: mostrar mensaje de éxito por más tiempo
+        setTimeout(() => {
+          setSuccess(false)
+          setStep(1)
+        }, 5000)
+        
+      } catch (error) {
+        console.error("❌ Error al enviar solicitud:", error)
+        setErrors({ submit: error.message })
+      } finally {
+        setLoading(false)
+      }
     }
+  }
+
+  // Mostrar mensaje de éxito si la solicitud fue enviada
+  if (success) {
+    return (
+      <Card className="sticky top-6">
+        <CardHeader>
+          <CardTitle>¡Solicitud Enviada!</CardTitle>
+        </CardHeader>
+        <CardContent className="text-center space-y-4">
+          <div className="text-green-600 text-lg font-semibold">
+            ✅ Tu solicitud de adopción ha sido enviada exitosamente
+          </div>
+          <p className="text-muted-foreground">
+            El refugio revisará tu solicitud y se pondrá en contacto contigo pronto.
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Recibirás una notificación por email cuando haya novedades.
+          </p>
+          <Button 
+            onClick={() => {
+              setSuccess(false)
+              setStep(1)
+            }}
+            variant="outline"
+          >
+            Enviar otra solicitud
+          </Button>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  // Verificar autenticación
+  if (!user) {
+    return (
+      <Card className="sticky top-6">
+        <CardHeader>
+          <CardTitle>Solicitud de Adopción</CardTitle>
+        </CardHeader>
+        <CardContent className="text-center space-y-4">
+          <p className="text-muted-foreground">
+            Debes iniciar sesión para enviar una solicitud de adopción
+          </p>
+          <Button onClick={() => window.location.href = '/auth/login'}>
+            Iniciar Sesión
+          </Button>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
@@ -178,9 +271,44 @@ export function AdoptionForm({ petId }) {
             </div>
           </div>
         )}
+        
+        {/* Mostrar errores de envío */}
+        {errors.submit && (
+          <div className="bg-red-50 border border-red-200 rounded-md p-3">
+            <p className="text-red-600 text-sm">{errors.submit}</p>
+          </div>
+        )}
+        
         <div className="flex justify-between pt-4">
-          {step > 1 && <Button variant="outline" onClick={handlePrevious}>Anterior</Button>}
-          {step < 3 ? <Button onClick={handleNext} className="ml-auto">Siguiente</Button> : <Button onClick={handleSubmit} className="ml-auto">Enviar Solicitud</Button>}
+          {step > 1 && (
+            <Button 
+              variant="outline" 
+              onClick={handlePrevious}
+              disabled={loading}
+            >
+              Anterior
+            </Button>
+          )}
+          {step < 3 ? (
+            <Button onClick={handleNext} className="ml-auto">
+              Siguiente
+            </Button>
+          ) : (
+            <Button 
+              onClick={handleSubmit} 
+              className="ml-auto" 
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <span className="animate-spin mr-2">⏳</span>
+                  Enviando...
+                </>
+              ) : (
+                'Enviar Solicitud'
+              )}
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
