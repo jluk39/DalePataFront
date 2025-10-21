@@ -65,7 +65,7 @@ export function MyPetsGrid() {
             onClick={handleRegisterPetClick}
           >
             <Plus className="w-4 h-4 mr-2" />
-            Registrar Mascota
+            Agregar Mascota
           </Button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6">
