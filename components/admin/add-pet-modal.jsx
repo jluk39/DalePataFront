@@ -8,6 +8,7 @@ import { Textarea } from "../ui/textarea.jsx"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog.jsx"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select.jsx"
 import { Upload, X } from "lucide-react"
+import { ApiService } from "../../lib/api.js"
 
 export default function AddPetModal({ open, onOpenChange, onSubmit }) {
   const [formData, setFormData] = useState({
@@ -15,20 +16,21 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
     especie: "",
     raza: "",
     edad_anios: "",
-    edad_meses: "",
     sexo: "",
     peso: "",
     color: "",
     estado_salud: "",
     descripcion: "",
-    necesidades_especiales: "",
-    en_adopcion: true,
-    imagen_url: "",
+    en_adopcion: false,
+    tamaño: "",
   })
+  const [imageFile, setImageFile] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   const handleInputChange = (field, value) => {
+    console.log(`📝 Campo actualizado: ${field} = "${value}"`)
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -38,13 +40,26 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
   const handleImageUpload = (event) => {
     const file = event.target.files[0]
     if (file) {
+      // Validar tamaño (máximo 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('La imagen no puede superar los 5MB')
+        return
+      }
+
+      // Validar formato
+      const validFormats = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+      if (!validFormats.includes(file.type)) {
+        setError('Formato de imagen no válido. Use JPEG, PNG o WebP')
+        return
+      }
+
+      setError(null)
+      setImageFile(file)
+
+      // Crear preview
       const reader = new FileReader()
       reader.onload = (e) => {
         setImagePreview(e.target.result)
-        setFormData((prev) => ({
-          ...prev,
-          imagen_url: e.target.result,
-        }))
       }
       reader.readAsDataURL(file)
     }
@@ -53,13 +68,100 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
+    setError(null)
 
     try {
-      // Mock API call - replace with actual implementation
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      console.log('🔍 VALIDACIÓN INICIAL - Estado del formulario:')
+      console.log('formData completo:', JSON.stringify(formData, null, 2))
+      
+      // Validar campos obligatorios antes de enviar
+      const camposFaltantes = []
+      
+      if (!formData.nombre || !formData.nombre.trim()) {
+        camposFaltantes.push('Nombre')
+      }
 
+      if (!formData.sexo || formData.sexo === '') {
+        camposFaltantes.push('Sexo')
+      }
+
+      if (!formData.especie || formData.especie === '') {
+        camposFaltantes.push('Especie')
+      }
+
+      if (!formData.estado_salud || formData.estado_salud === '') {
+        camposFaltantes.push('Estado de salud')
+      }
+
+      if (camposFaltantes.length > 0) {
+        const mensajeError = `Faltan campos obligatorios: ${camposFaltantes.join(', ')}`
+        console.error('❌ VALIDACIÓN FALLIDA:', mensajeError)
+        setError(mensajeError)
+        setLoading(false)
+        return
+      }
+
+      console.log('✅ VALIDACIÓN EXITOSA - Todos los campos obligatorios están completos')
+
+      // Crear FormData para enviar con imagen
+      const formDataToSend = new FormData()
+
+      // Agregar campos obligatorios
+      formDataToSend.append('nombre', formData.nombre.trim())
+      formDataToSend.append('sexo', formData.sexo)
+      formDataToSend.append('especie', formData.especie)
+      formDataToSend.append('estado_salud', formData.estado_salud)
+
+      console.log('📦 CAMPOS OBLIGATORIOS agregados al FormData:')
+      console.log('  - nombre:', formData.nombre.trim())
+      console.log('  - sexo:', formData.sexo)
+      console.log('  - especie:', formData.especie)
+      console.log('  - estado_salud:', formData.estado_salud)
+
+      // Agregar campos opcionales solo si tienen valor
+      if (formData.raza && formData.raza.trim()) {
+        formDataToSend.append('raza', formData.raza.trim())
+        console.log('  - raza (opcional):', formData.raza.trim())
+      }
+      if (formData.edad_anios && formData.edad_anios !== '') {
+        formDataToSend.append('edad_anios', formData.edad_anios)
+        console.log('  - edad_anios (opcional):', formData.edad_anios)
+      }
+      if (formData.peso && formData.peso !== '') {
+        formDataToSend.append('peso', formData.peso)
+        console.log('  - peso (opcional):', formData.peso)
+      }
+      if (formData.color && formData.color.trim()) {
+        formDataToSend.append('color', formData.color.trim())
+        console.log('  - color (opcional):', formData.color.trim())
+      }
+      if (formData.descripcion && formData.descripcion.trim()) {
+        formDataToSend.append('descripcion', formData.descripcion.trim())
+        console.log('  - descripcion (opcional):', formData.descripcion.trim())
+      }
+      if (formData.tamaño && formData.tamaño.trim()) {
+        formDataToSend.append('tamaño', formData.tamaño.trim())
+        console.log('  - tamaño (opcional):', formData.tamaño.trim())
+      }
+      formDataToSend.append('en_adopcion', formData.en_adopcion ? 'true' : 'false')
+      console.log('  - en_adopcion:', formData.en_adopcion ? 'true' : 'false')
+
+      // Agregar imagen si existe
+      if (imageFile) {
+        formDataToSend.append('imagen', imageFile)
+        console.log('  - imagen:', imageFile.name, `(${(imageFile.size / 1024).toFixed(2)} KB)`)
+      } else {
+        console.log('  - imagen: Sin imagen')
+      }
+
+      console.log('🚀 ENVIANDO REQUEST al backend...')
+
+      // Llamar al API
+      const resultado = await ApiService.createPet(formDataToSend)
+
+      // Llamar callback si existe
       if (onSubmit) {
-        onSubmit(formData)
+        onSubmit(resultado)
       }
 
       // Reset form
@@ -68,20 +170,27 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
         especie: "",
         raza: "",
         edad_anios: "",
-        edad_meses: "",
         sexo: "",
         peso: "",
         color: "",
         estado_salud: "",
         descripcion: "",
-        necesidades_especiales: "",
-        en_adopcion: true,
-        imagen_url: "",
+        en_adopcion: false,
+        tamaño: "",
       })
+      setImageFile(null)
       setImagePreview(null)
+      setError(null)
       onOpenChange(false)
+
+      // Mostrar mensaje de éxito
+      alert(`✅ Mascota "${resultado.nombre}" registrada exitosamente`)
+      
+      // Recargar la página para mostrar la nueva mascota
+      window.location.reload()
     } catch (error) {
       console.error("Error adding pet:", error)
+      setError(error.message || 'Error al registrar la mascota')
     } finally {
       setLoading(false)
     }
@@ -91,11 +200,17 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-slate-900 border-slate-800 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Agregar Nueva Mascota</DialogTitle>
+          <DialogTitle>Registrar Mi Mascota</DialogTitle>
           <DialogDescription className="text-slate-400">
-            Completa la información de la nueva mascota para el refugio
+            Completa la información de tu mascota
           </DialogDescription>
         </DialogHeader>
+
+        {error && (
+          <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Image Upload */}
@@ -116,7 +231,7 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
                     className="absolute -top-2 -right-2 w-6 h-6 p-0 bg-red-500 hover:bg-red-600 text-white rounded-full"
                     onClick={() => {
                       setImagePreview(null)
-                      setFormData((prev) => ({ ...prev, imagen_url: "" }))
+                      setImageFile(null)
                     }}
                   >
                     <X className="w-3 h-3" />
@@ -203,7 +318,7 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
           </div>
 
           {/* Age and Physical Info */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="edad_anios" className="text-white">
                 Edad (años)
@@ -216,23 +331,7 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
                 value={formData.edad_anios}
                 onChange={(e) => handleInputChange("edad_anios", e.target.value)}
                 className="bg-slate-800 border-slate-700 text-white"
-                placeholder="0"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="edad_meses" className="text-white">
-                Edad (meses)
-              </Label>
-              <Input
-                id="edad_meses"
-                type="number"
-                min="0"
-                max="11"
-                value={formData.edad_meses}
-                onChange={(e) => handleInputChange("edad_meses", e.target.value)}
-                className="bg-slate-800 border-slate-700 text-white"
-                placeholder="0"
+                placeholder="Ej: 3"
               />
             </div>
 
@@ -285,6 +384,23 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
             </div>
           </div>
 
+          {/* Tamaño */}
+          <div className="space-y-2">
+            <Label htmlFor="tamaño" className="text-white">
+              Tamaño
+            </Label>
+            <Select value={formData.tamaño} onValueChange={(value) => handleInputChange("tamaño", value)}>
+              <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                <SelectValue placeholder="Selecciona el tamaño" />
+              </SelectTrigger>
+              <SelectContent className="bg-slate-800 border-slate-700">
+                <SelectItem value="Pequeño">Pequeño</SelectItem>
+                <SelectItem value="Mediano">Mediano</SelectItem>
+                <SelectItem value="Grande">Grande</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Description */}
           <div className="space-y-2">
             <Label htmlFor="descripcion" className="text-white">
@@ -295,20 +411,7 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
               value={formData.descripcion}
               onChange={(e) => handleInputChange("descripcion", e.target.value)}
               className="bg-slate-800 border-slate-700 text-white min-h-[100px]"
-              placeholder="Describe la personalidad, comportamiento y características especiales de la mascota..."
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="necesidades_especiales" className="text-white">
-              Necesidades especiales
-            </Label>
-            <Textarea
-              id="necesidades_especiales"
-              value={formData.necesidades_especiales}
-              onChange={(e) => handleInputChange("necesidades_especiales", e.target.value)}
-              className="bg-slate-800 border-slate-700 text-white"
-              placeholder="Medicamentos, dieta especial, cuidados específicos..."
+              placeholder="Describe la personalidad, comportamiento y características especiales de tu mascota..."
             />
           </div>
 

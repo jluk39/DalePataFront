@@ -43,9 +43,16 @@ export function MyPetsGrid() {
   }, [user])
 
   const handleAddPet = async (newPetData) => {
-    alert('Funcionalidad no disponible: endpoint para crear mascotas no implementado')
-    // TODO: Implementar creación de mascota
-    // Después de crear, recargar la lista de mascotas
+    // La mascota ya fue creada en el modal, solo cerramos
+    console.log('Mascota agregada:', newPetData)
+  }
+
+  const handleRegisterPetClick = () => {
+    if (!user) {
+      router.push('/auth/login')
+    } else {
+      setShowAddModal(true)
+    }
   }
 
   if (loading) {
@@ -55,7 +62,7 @@ export function MyPetsGrid() {
           <h2 className="text-2xl font-bold">MIS MASCOTAS</h2>
           <Button 
             className="bg-primary hover:bg-primary/90 text-primary-foreground"
-            onClick={() => setShowAddModal(true)}
+            onClick={handleRegisterPetClick}
           >
             <Plus className="w-4 h-4 mr-2" />
             Registrar Mascota
@@ -86,7 +93,7 @@ export function MyPetsGrid() {
           <h2 className="text-2xl font-bold">MIS MASCOTAS</h2>
           <Button 
             className="bg-primary hover:bg-primary/90 text-primary-foreground"
-            onClick={() => setShowAddModal(true)}
+            onClick={handleRegisterPetClick}
           >
             <Plus className="w-4 h-4 mr-2" />
             Registrar Mascota
@@ -117,7 +124,7 @@ export function MyPetsGrid() {
           <h2 className="text-2xl font-bold">MIS MASCOTAS</h2>
           <Button 
             className="bg-primary hover:bg-primary/90 text-primary-foreground"
-            onClick={() => setShowAddModal(true)}
+            onClick={handleRegisterPetClick}
           >
             <Plus className="w-4 h-4 mr-2" />
             Registrar Mascota
@@ -145,7 +152,7 @@ export function MyPetsGrid() {
           <h2 className="text-2xl font-bold">MIS MASCOTAS</h2>
           <Button 
             className="bg-primary hover:bg-primary/90 text-primary-foreground"
-            onClick={() => setShowAddModal(true)}
+            onClick={handleRegisterPetClick}
           >
             <Plus className="w-4 h-4 mr-2" />
             Registrar Mascota
@@ -174,7 +181,7 @@ export function MyPetsGrid() {
         <h2 className="text-2xl font-bold">MIS MASCOTAS</h2>
         <Button 
           className="bg-primary hover:bg-primary/90 text-primary-foreground"
-          onClick={() => setShowAddModal(true)}
+          onClick={handleRegisterPetClick}
         >
           <Plus className="w-4 h-4 mr-2" />
           Registrar Mascota
