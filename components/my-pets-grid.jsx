@@ -189,7 +189,24 @@ export function MyPetsGrid() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6">
         {pets.map((pet) => (
-          <PetCard key={pet.id} pet={pet} />
+          <PetCard 
+            key={pet.id} 
+            pet={pet} 
+            showFavoriteButton={false}
+            showOwnerActions={true}
+            onPetDeleted={(deletedId) => {
+              setPets(prev => prev.filter(p => p.id !== deletedId))
+            }}
+            onPetUpdated={(updatedPet) => {
+              setPets(prev => prev.map(p => p.id === updatedPet.id ? {
+                ...p,
+                name: updatedPet.nombre,
+                species: updatedPet.especie,
+                breed: updatedPet.raza,
+                // ... otros campos actualizados
+              } : p))
+            }}
+          />
         ))}
       </div>
       

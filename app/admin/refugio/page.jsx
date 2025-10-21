@@ -7,7 +7,6 @@ import { Heart, FileText, TrendingUp } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { ApiService } from "../../../lib/api.js"
-
 export default function AdminDashboard() {
   const { user } = useAuth()
   const [stats, setStats] = useState({

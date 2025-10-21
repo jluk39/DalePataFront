@@ -7,6 +7,7 @@ import { Button } from "../../../components/ui/button.jsx"
 import { Home, Heart, FileText, Settings, LogOut, Menu, X } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import AdminProtectedRoute from "../../../components/admin/admin-protected-route.jsx"
 
 export default function AdminLayout({ children }) {
   const { user, loading, signOut } = useAuth()
@@ -65,11 +66,12 @@ export default function AdminLayout({ children }) {
   }
 
   return (
-    <div className="flex h-screen bg-background">
-      {/* Mobile sidebar backdrop */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setSidebarOpen(false)} />
-      )}
+    <AdminProtectedRoute requiredRole="refugio">
+      <div className="flex h-screen bg-background">
+        {/* Mobile sidebar backdrop */}
+        {sidebarOpen && (
+          <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setSidebarOpen(false)} />
+        )}
 
       {/* Sidebar */}
       <div
@@ -162,7 +164,7 @@ export default function AdminLayout({ children }) {
 
           <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
             <div className="flex items-center gap-x-4 lg:gap-x-6">
-              <h1 className="text-foreground font-semibold">Panel de Administración</h1>
+              <h1 className="text-foreground font-semibold">Panel de Administración Refugios</h1>
             </div>
           </div>
         </div>
@@ -172,6 +174,7 @@ export default function AdminLayout({ children }) {
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">{children}</div>
         </main>
       </div>
-    </div>
+      </div>
+    </AdminProtectedRoute>
   )
 }
