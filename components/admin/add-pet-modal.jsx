@@ -198,16 +198,16 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-slate-900 border-slate-800 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-background border-border text-foreground max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Registrar Mi Mascota</DialogTitle>
-          <DialogDescription className="text-slate-400">
+          <DialogTitle className="text-foreground">Registrar Mi Mascota</DialogTitle>
+          <DialogDescription className="text-muted-foreground">
             Completa la información de tu mascota
           </DialogDescription>
         </DialogHeader>
 
         {error && (
-          <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded">
+          <div className="bg-destructive/10 border border-destructive text-destructive px-4 py-3 rounded">
             {error}
           </div>
         )}
@@ -215,7 +215,7 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Image Upload */}
           <div className="space-y-2">
-            <Label className="text-white">Foto de la mascota</Label>
+            <Label className="text-foreground">Foto de la mascota</Label>
             <div className="flex items-center space-x-4">
               {imagePreview ? (
                 <div className="relative">
@@ -228,7 +228,7 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="absolute -top-2 -right-2 w-6 h-6 p-0 bg-red-500 hover:bg-red-600 text-white rounded-full"
+                    className="absolute -top-2 -right-2 w-6 h-6 p-0 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full"
                     onClick={() => {
                       setImagePreview(null)
                       setImageFile(null)
@@ -238,8 +238,8 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
                   </Button>
                 </div>
               ) : (
-                <div className="w-24 h-24 border-2 border-dashed border-slate-600 rounded-lg flex items-center justify-center">
-                  <Upload className="w-8 h-8 text-slate-400" />
+                <div className="w-24 h-24 border-2 border-dashed border-border rounded-lg flex items-center justify-center">
+                  <Upload className="w-8 h-8 text-muted-foreground" />
                 </div>
               )}
               <div>
@@ -247,9 +247,9 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
                   type="file"
                   accept="image/*"
                   onChange={handleImageUpload}
-                  className="bg-slate-800 border-slate-700 text-white"
+                  className="bg-input border-border text-foreground"
                 />
-                <p className="text-slate-400 text-sm mt-1">Formatos: JPG, PNG, GIF (máx. 5MB)</p>
+                <p className="text-muted-foreground text-sm mt-1">Formatos: JPG, PNG, GIF (máx. 5MB)</p>
               </div>
             </div>
           </div>
@@ -257,59 +257,56 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
           {/* Basic Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="nombre" className="text-white">
+              <Label htmlFor="nombre" className="text-foreground">
                 Nombre *
               </Label>
               <Input
                 id="nombre"
                 value={formData.nombre}
                 onChange={(e) => handleInputChange("nombre", e.target.value)}
-                className="bg-slate-800 border-slate-700 text-white"
+                className="bg-input border-border text-foreground"
                 placeholder="Ej: Max, Luna, Bella"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="especie" className="text-white">
+              <Label htmlFor="especie" className="text-foreground">
                 Especie *
               </Label>
               <Select value={formData.especie} onValueChange={(value) => handleInputChange("especie", value)}>
-                <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                <SelectTrigger className="bg-input border-border text-foreground">
                   <SelectValue placeholder="Selecciona la especie" />
                 </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
+                <SelectContent className="bg-popover border-border">
                   <SelectItem value="Perro">Perro</SelectItem>
                   <SelectItem value="Gato">Gato</SelectItem>
-                  <SelectItem value="Conejo">Conejo</SelectItem>
-                  <SelectItem value="Ave">Ave</SelectItem>
-                  <SelectItem value="Otro">Otro</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="raza" className="text-white">
+              <Label htmlFor="raza" className="text-foreground">
                 Raza
               </Label>
               <Input
                 id="raza"
                 value={formData.raza}
                 onChange={(e) => handleInputChange("raza", e.target.value)}
-                className="bg-slate-800 border-slate-700 text-white"
+                className="bg-input border-border text-foreground"
                 placeholder="Ej: Golden Retriever, Siamés"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="sexo" className="text-white">
+              <Label htmlFor="sexo" className="text-foreground">
                 Sexo *
               </Label>
               <Select value={formData.sexo} onValueChange={(value) => handleInputChange("sexo", value)}>
-                <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                <SelectTrigger className="bg-input border-border text-foreground">
                   <SelectValue placeholder="Selecciona el sexo" />
                 </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
+                <SelectContent className="bg-popover border-border">
                   <SelectItem value="Macho">Macho</SelectItem>
                   <SelectItem value="Hembra">Hembra</SelectItem>
                 </SelectContent>
@@ -320,7 +317,7 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
           {/* Age and Physical Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="edad_anios" className="text-white">
+              <Label htmlFor="edad_anios" className="text-foreground">
                 Edad (años)
               </Label>
               <Input
@@ -330,13 +327,13 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
                 max="30"
                 value={formData.edad_anios}
                 onChange={(e) => handleInputChange("edad_anios", e.target.value)}
-                className="bg-slate-800 border-slate-700 text-white"
+                className="bg-input border-border text-foreground"
                 placeholder="Ej: 3"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="peso" className="text-white">
+              <Label htmlFor="peso" className="text-foreground">
                 Peso (kg)
               </Label>
               <Input
@@ -346,7 +343,7 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
                 min="0"
                 value={formData.peso}
                 onChange={(e) => handleInputChange("peso", e.target.value)}
-                className="bg-slate-800 border-slate-700 text-white"
+                className="bg-input border-border text-foreground"
                 placeholder="0.0"
               />
             </div>
@@ -354,27 +351,27 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="color" className="text-white">
+              <Label htmlFor="color" className="text-foreground">
                 Color
               </Label>
               <Input
                 id="color"
                 value={formData.color}
                 onChange={(e) => handleInputChange("color", e.target.value)}
-                className="bg-slate-800 border-slate-700 text-white"
+                className="bg-input border-border text-foreground"
                 placeholder="Ej: Dorado, Negro, Blanco"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="estado_salud" className="text-white">
+              <Label htmlFor="estado_salud" className="text-foreground">
                 Estado de salud *
               </Label>
               <Select value={formData.estado_salud} onValueChange={(value) => handleInputChange("estado_salud", value)}>
-                <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                <SelectTrigger className="bg-input border-border text-foreground">
                   <SelectValue placeholder="Selecciona el estado" />
                 </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
+                <SelectContent className="bg-popover border-border">
                   <SelectItem value="Saludable">Saludable</SelectItem>
                   <SelectItem value="En tratamiento">En tratamiento</SelectItem>
                   <SelectItem value="Recuperándose">Recuperándose</SelectItem>
@@ -386,14 +383,14 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
 
           {/* Tamaño */}
           <div className="space-y-2">
-            <Label htmlFor="tamaño" className="text-white">
+            <Label htmlFor="tamaño" className="text-foreground">
               Tamaño
             </Label>
             <Select value={formData.tamaño} onValueChange={(value) => handleInputChange("tamaño", value)}>
-              <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+              <SelectTrigger className="bg-input border-border text-foreground">
                 <SelectValue placeholder="Selecciona el tamaño" />
               </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-slate-700">
+              <SelectContent className="bg-popover border-border">
                 <SelectItem value="Pequeño">Pequeño</SelectItem>
                 <SelectItem value="Mediano">Mediano</SelectItem>
                 <SelectItem value="Grande">Grande</SelectItem>
@@ -403,31 +400,31 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
 
           {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="descripcion" className="text-white">
+            <Label htmlFor="descripcion" className="text-foreground">
               Descripción
             </Label>
             <Textarea
               id="descripcion"
               value={formData.descripcion}
               onChange={(e) => handleInputChange("descripcion", e.target.value)}
-              className="bg-slate-800 border-slate-700 text-white min-h-[100px]"
-              placeholder="Describe la personalidad, comportamiento y características especiales de tu mascota..."
+              className="bg-input border-border text-foreground min-h-[100px]"
+              placeholder="Algo en particular que quieras contar sobre tu mascota..."
             />
           </div>
 
           {/* Adoption Status */}
           <div className="space-y-2">
-            <Label htmlFor="en_adopcion" className="text-white">
+            <Label htmlFor="en_adopcion" className="text-foreground">
               Estado de adopción
             </Label>
             <Select
               value={formData.en_adopcion ? "true" : "false"}
               onValueChange={(value) => handleInputChange("en_adopcion", value === "true")}
             >
-              <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+              <SelectTrigger className="bg-input border-border text-foreground">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-slate-700">
+              <SelectContent className="bg-popover border-border">
                 <SelectItem value="true">Disponible para adopción</SelectItem>
                 <SelectItem value="false">No disponible para adopción</SelectItem>
               </SelectContent>
@@ -439,7 +436,7 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
             <Button
               type="button"
               variant="outline"
-              className="flex-1 border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 bg-transparent"
+              className="flex-1"
               onClick={() => onOpenChange(false)}
               disabled={loading}
             >
@@ -447,7 +444,7 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
             </Button>
             <Button
               type="submit"
-              className="flex-1 bg-blue-600 hover:bg-blue-700"
+              className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
               disabled={loading || !formData.nombre || !formData.especie || !formData.sexo || !formData.estado_salud}
             >
               {loading ? "Guardando..." : "Agregar Mascota"}
