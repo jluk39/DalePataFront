@@ -15,7 +15,7 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
     nombre: "",
     especie: "",
     raza: "",
-    edad_anios: "",
+    fecha_nacimiento: "",
     sexo: "",
     peso: "",
     color: "",
@@ -123,9 +123,9 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
         formDataToSend.append('raza', formData.raza.trim())
         console.log('  - raza (opcional):', formData.raza.trim())
       }
-      if (formData.edad_anios && formData.edad_anios !== '') {
-        formDataToSend.append('edad_anios', formData.edad_anios)
-        console.log('  - edad_anios (opcional):', formData.edad_anios)
+      if (formData.fecha_nacimiento && formData.fecha_nacimiento !== '') {
+        formDataToSend.append('fecha_nacimiento', formData.fecha_nacimiento)
+        console.log('  - fecha_nacimiento (opcional):', formData.fecha_nacimiento)
       }
       if (formData.peso && formData.peso !== '') {
         formDataToSend.append('peso', formData.peso)
@@ -169,7 +169,7 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
         nombre: "",
         especie: "",
         raza: "",
-        edad_anios: "",
+        fecha_nacimiento: "",
         sexo: "",
         peso: "",
         color: "",
@@ -314,22 +314,24 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
             </div>
           </div>
 
-          {/* Age and Physical Info */}
+          {/* Birth Date and Physical Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="edad_anios" className="text-foreground">
-                Edad (años)
+              <Label htmlFor="fecha_nacimiento" className="text-foreground">
+                Fecha de nacimiento
               </Label>
               <Input
-                id="edad_anios"
-                type="number"
-                min="0"
-                max="30"
-                value={formData.edad_anios}
-                onChange={(e) => handleInputChange("edad_anios", e.target.value)}
+                id="fecha_nacimiento"
+                type="date"
+                value={formData.fecha_nacimiento}
+                onChange={(e) => handleInputChange("fecha_nacimiento", e.target.value)}
                 className="bg-input border-border text-foreground"
-                placeholder="Ej: 3"
+                max={new Date().toISOString().split('T')[0]} // No permitir fechas futuras
+                min={new Date(new Date().getFullYear() - 30, 0, 1).toISOString().split('T')[0]} // Máximo 30 años atrás
               />
+              <p className="text-muted-foreground text-sm">
+                Si no conoces la fecha exacta, puedes usar una aproximada
+              </p>
             </div>
 
             <div className="space-y-2">

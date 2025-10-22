@@ -15,7 +15,7 @@ export default function EditPetModal({ open, onOpenChange, pet, onPetUpdated }) 
     nombre: "",
     especie: "",
     raza: "",
-    edad_anios: "",
+    fecha_nacimiento: "",
     sexo: "",
     peso: "",
     color: "",
@@ -33,22 +33,22 @@ export default function EditPetModal({ open, onOpenChange, pet, onPetUpdated }) 
   useEffect(() => {
     if (pet && open) {
       setFormData({
-        nombre: pet.name || "",
-        especie: pet.species || "",
-        raza: pet.breed || "",
-        edad_anios: pet.age ? parseInt(pet.age) : "",
-        sexo: pet.gender || "",
-        peso: pet.weight || "",
+        nombre: pet.name || pet.nombre || "",
+        especie: pet.species || pet.especie || "",
+        raza: pet.breed || pet.raza || "",
+        fecha_nacimiento: pet.fecha_nacimiento ? new Date(pet.fecha_nacimiento).toISOString().split('T')[0] : "",
+        sexo: pet.gender || pet.sexo || "",
+        peso: pet.weight || pet.peso || "",
         color: pet.color || "",
-        estado_salud: pet.healthStatus || "",
-        descripcion: pet.description || "",
-        en_adopcion: pet.availableForAdoption !== false,
-        tamaño: pet.size || "",
+        estado_salud: pet.healthStatus || pet.estado_salud || "",
+        descripcion: pet.description || pet.descripcion || "",
+        en_adopcion: pet.en_adopcion !== undefined ? pet.en_adopcion : (pet.availableForAdoption !== undefined ? pet.availableForAdoption : false),
+        tamaño: pet.size || pet.tamaño || "",
       })
       
       // Establecer imagen actual como preview
-      if (pet.image) {
-        setImagePreview(pet.image)
+      if (pet.image || pet.imagen_url) {
+        setImagePreview(pet.image || pet.imagen_url)
       }
       
       setImageFile(null)
@@ -123,7 +123,7 @@ export default function EditPetModal({ open, onOpenChange, pet, onPetUpdated }) 
         dataToSend.append('estado_salud', formData.estado_salud || 'Saludable')
         
         if (formData.raza) dataToSend.append('raza', formData.raza.trim())
-        if (formData.edad_anios) dataToSend.append('edad_anios', formData.edad_anios)
+        if (formData.fecha_nacimiento) dataToSend.append('fecha_nacimiento', formData.fecha_nacimiento)
         if (formData.peso) dataToSend.append('peso', formData.peso)
         if (formData.color) dataToSend.append('color', formData.color.trim())
         if (formData.descripcion) dataToSend.append('descripcion', formData.descripcion.trim())
@@ -139,7 +139,7 @@ export default function EditPetModal({ open, onOpenChange, pet, onPetUpdated }) 
           especie: formData.especie || 'No especificado',
           estado_salud: formData.estado_salud || 'Saludable',
           raza: formData.raza?.trim() || null,
-          edad_anios: formData.edad_anios ? parseInt(formData.edad_anios) : null,
+          fecha_nacimiento: formData.fecha_nacimiento || null,
           peso: formData.peso ? parseFloat(formData.peso) : null,
           color: formData.color?.trim() || null,
           descripcion: formData.descripcion?.trim() || null,
@@ -176,7 +176,7 @@ export default function EditPetModal({ open, onOpenChange, pet, onPetUpdated }) 
 
   const resetForm = () => {
     setImageFile(null)
-    setImagePreview(pet?.image || null)
+    setImagePreview(pet?.image || pet?.imagen_url || null)
     setError(null)
   }
 
@@ -192,7 +192,7 @@ export default function EditPetModal({ open, onOpenChange, pet, onPetUpdated }) 
         <DialogHeader>
           <DialogTitle className="text-foreground">Editar Mascota</DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Actualiza la información de {pet?.name}
+            Actualiza la información de {pet?.name || pet?.nombre}
           </DialogDescription>
         </DialogHeader>
 
@@ -221,7 +221,7 @@ export default function EditPetModal({ open, onOpenChange, pet, onPetUpdated }) 
                       size="sm"
                       className="absolute -top-2 -right-2 w-6 h-6 p-0 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full"
                       onClick={() => {
-                        setImagePreview(pet?.image || null)
+                        setImagePreview(pet?.image || pet?.imagen_url || null)
                         setImageFile(null)
                       }}
                     >
@@ -308,22 +308,24 @@ export default function EditPetModal({ open, onOpenChange, pet, onPetUpdated }) 
             </div>
           </div>
 
-          {/* Age and Physical Info */}
+          {/* Birth Date and Physical Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="edad_anios" className="text-foreground">
-                Edad (años)
+              <Label htmlFor="fecha_nacimiento" className="text-foreground">
+                Fecha de nacimiento
               </Label>
               <Input
-                id="edad_anios"
-                type="number"
-                min="0"
-                max="30"
-                value={formData.edad_anios}
-                onChange={(e) => handleInputChange("edad_anios", e.target.value)}
+                id="fecha_nacimiento"
+                type="date"
+                value={formData.fecha_nacimiento}
+                onChange={(e) => handleInputChange("fecha_nacimiento", e.target.value)}
                 className="bg-input border-border text-foreground"
-                placeholder="Ej: 3"
+                max={new Date().toISOString().split('T')[0]} // No permitir fechas futuras
+                min={new Date(new Date().getFullYear() - 30, 0, 1).toISOString().split('T')[0]} // Máximo 30 años atrás
               />
+              <p className="text-muted-foreground text-sm">
+                Si no conoces la fecha exacta, puedes usar una aproximada
+              </p>
             </div>
 
             <div className="space-y-2">

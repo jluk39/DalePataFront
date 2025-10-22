@@ -9,6 +9,7 @@ import { Plus, Search, Edit, Trash2, Eye, Heart, Loader2 } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../../components/ui/table.jsx"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../components/ui/select.jsx"
 import AddPetModal from "../../../../components/admin/add-pet-modal.jsx"
+import EditPetModal from "../../../../components/admin/edit-pet-modal.jsx"
 import { ApiService } from "../../../../lib/api.js"
 import { useAuth } from "../../../../components/backend-auth-provider.js"
 
