@@ -8,8 +8,9 @@ import { Heart, MapPin, Edit2, Trash2 } from "lucide-react"
 import { useAuth } from "./backend-auth-provider.js"
 import { ApiService } from "../lib/api.js"
 import EditPetModal from "./admin/edit-pet-modal.jsx"
+import UserEditPetModal from "./user/user-edit-pet-modal.jsx"
 
-export function PetCard({ pet, showFavoriteButton = true, showOwnerActions = false, onPetDeleted, onPetUpdated }) {
+export function PetCard({ pet, showFavoriteButton = true, showOwnerActions = false, onPetDeleted, onPetUpdated, useUserModals = false }) {
   const { user } = useAuth()
   const [isFavorite, setIsFavorite] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
@@ -116,17 +117,6 @@ export function PetCard({ pet, showFavoriteButton = true, showOwnerActions = fal
             </p>
           </div>
 
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <MapPin className="w-4 h-4" />
-            <span>{pet.location || "Buenos Aires"}</span>
-          </div>
-
-          {pet.shelter && (
-            <div className="text-sm text-muted-foreground">
-              <strong>Refugio:</strong> {pet.shelter}
-            </div>
-          )}
-
           <div className="flex gap-2 flex-wrap">
             {pet.vaccinated && (
               <Badge variant="secondary" className="text-xs">
@@ -146,22 +136,28 @@ export function PetCard({ pet, showFavoriteButton = true, showOwnerActions = fal
           </div>
 
           <p className="text-sm text-muted-foreground line-clamp-2">
-            {pet.isOwned ? 
-              `Tu mascota ${pet.species?.toLowerCase()} adoptada ${pet.adoptionDate ? `el ${pet.adoptionDate}` : ''}` :
-              `${pet.species} en busca de un hogar lleno de amor`
-            }
+            {pet.description || "Aún no hay una descripción. Puedes agregar una editando la mascota"}
           </p>
         </div>
       </CardContent>
       
       {/* Modal de edición */}
       {showEditModal && (
-        <EditPetModal
-          open={showEditModal}
-          onOpenChange={setShowEditModal}
-          pet={pet}
-          onPetUpdated={onPetUpdated}
-        />
+        useUserModals ? (
+          <UserEditPetModal
+            open={showEditModal}
+            onOpenChange={setShowEditModal}
+            pet={pet}
+            onPetUpdated={onPetUpdated}
+          />
+        ) : (
+          <EditPetModal
+            open={showEditModal}
+            onOpenChange={setShowEditModal}
+            pet={pet}
+            onPetUpdated={onPetUpdated}
+          />
+        )
       )}
     </Card>
   )

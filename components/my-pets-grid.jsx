@@ -7,7 +7,7 @@ import { ApiService } from "../lib/api.js"
 import { Button } from "./ui/button.jsx"
 import { useAuth } from "./backend-auth-provider.js"
 import { Plus } from "lucide-react"
-import AddPetModal from "./admin/add-pet-modal.jsx"
+import UserAddPetModal from "./user/user-add-pet-modal.jsx"
 
 export function MyPetsGrid() {
   const { user } = useAuth()
@@ -77,7 +77,7 @@ export function MyPetsGrid() {
             </div>
           ))}
         </div>
-        <AddPetModal 
+        <UserAddPetModal 
           open={showAddModal} 
           onOpenChange={setShowAddModal} 
           onSubmit={handleAddPet} 
@@ -108,7 +108,7 @@ export function MyPetsGrid() {
             Reintentar
           </Button>
         </div>
-        <AddPetModal 
+        <UserAddPetModal 
           open={showAddModal} 
           onOpenChange={setShowAddModal} 
           onSubmit={handleAddPet} 
@@ -136,7 +136,7 @@ export function MyPetsGrid() {
             Iniciar Sesión
           </Button>
         </div>
-        <AddPetModal 
+        <UserAddPetModal 
           open={showAddModal} 
           onOpenChange={setShowAddModal} 
           onSubmit={handleAddPet} 
@@ -166,7 +166,7 @@ export function MyPetsGrid() {
             Ver Mascotas en Adopción
           </Button>
         </div>
-        <AddPetModal 
+        <UserAddPetModal 
           open={showAddModal} 
           onOpenChange={setShowAddModal} 
           onSubmit={handleAddPet} 
@@ -194,6 +194,7 @@ export function MyPetsGrid() {
             pet={pet} 
             showFavoriteButton={false}
             showOwnerActions={true}
+            useUserModals={true}
             onPetDeleted={(deletedId) => {
               setPets(prev => prev.filter(p => p.id !== deletedId))
             }}
@@ -210,7 +211,7 @@ export function MyPetsGrid() {
         ))}
       </div>
       
-      <AddPetModal 
+      <UserAddPetModal 
         open={showAddModal} 
         onOpenChange={setShowAddModal} 
         onSubmit={handleAddPet} 
