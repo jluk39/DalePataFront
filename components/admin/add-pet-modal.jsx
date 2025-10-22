@@ -71,8 +71,6 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
     setError(null)
 
     try {
-      console.log('🔍 VALIDACIÓN INICIAL - Estado del formulario:')
-      console.log('formData completo:', JSON.stringify(formData, null, 2))
       
       // Validar campos obligatorios antes de enviar
       const camposFaltantes = []
@@ -101,8 +99,6 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
         return
       }
 
-      console.log('✅ VALIDACIÓN EXITOSA - Todos los campos obligatorios están completos')
-
       // Crear FormData para enviar con imagen
       const formDataToSend = new FormData()
 
@@ -112,49 +108,31 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
       formDataToSend.append('especie', formData.especie)
       formDataToSend.append('estado_salud', formData.estado_salud)
 
-      console.log('📦 CAMPOS OBLIGATORIOS agregados al FormData:')
-      console.log('  - nombre:', formData.nombre.trim())
-      console.log('  - sexo:', formData.sexo)
-      console.log('  - especie:', formData.especie)
-      console.log('  - estado_salud:', formData.estado_salud)
-
       // Agregar campos opcionales solo si tienen valor
       if (formData.raza && formData.raza.trim()) {
         formDataToSend.append('raza', formData.raza.trim())
-        console.log('  - raza (opcional):', formData.raza.trim())
       }
       if (formData.fecha_nacimiento && formData.fecha_nacimiento !== '') {
         formDataToSend.append('fecha_nacimiento', formData.fecha_nacimiento)
-        console.log('  - fecha_nacimiento (opcional):', formData.fecha_nacimiento)
       }
       if (formData.peso && formData.peso !== '') {
         formDataToSend.append('peso', formData.peso)
-        console.log('  - peso (opcional):', formData.peso)
       }
       if (formData.color && formData.color.trim()) {
         formDataToSend.append('color', formData.color.trim())
-        console.log('  - color (opcional):', formData.color.trim())
       }
       if (formData.descripcion && formData.descripcion.trim()) {
         formDataToSend.append('descripcion', formData.descripcion.trim())
-        console.log('  - descripcion (opcional):', formData.descripcion.trim())
       }
       if (formData.tamaño && formData.tamaño.trim()) {
         formDataToSend.append('tamaño', formData.tamaño.trim())
-        console.log('  - tamaño (opcional):', formData.tamaño.trim())
       }
       formDataToSend.append('en_adopcion', formData.en_adopcion ? 'true' : 'false')
-      console.log('  - en_adopcion:', formData.en_adopcion ? 'true' : 'false')
 
       // Agregar imagen si existe
       if (imageFile) {
         formDataToSend.append('imagen', imageFile)
-        console.log('  - imagen:', imageFile.name, `(${(imageFile.size / 1024).toFixed(2)} KB)`)
-      } else {
-        console.log('  - imagen: Sin imagen')
       }
-
-      console.log('🚀 ENVIANDO REQUEST al backend...')
 
       // Llamar al API
       const resultado = await ApiService.createPet(formDataToSend)

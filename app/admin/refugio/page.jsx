@@ -32,11 +32,7 @@ export default function AdminDashboard() {
           ? petsData.filter(pet => pet.refugio_id === user.id)
           : petsData
         
-        console.log('📊 Estadísticas filtradas por refugio:', {
-          total: petsData.length,
-          filtradas: filteredPets.length,
-          refugio_id: user?.id
-        })
+
         
         // Calculate stats from filtered pets data
         const totalPets = filteredPets.length

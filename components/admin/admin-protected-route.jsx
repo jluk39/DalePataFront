@@ -43,22 +43,11 @@ export default function AdminProtectedRoute({ children, requiredRole = "refugio"
       return
     }
 
-    // Verificar el tipo de usuario - buscar en diferentes campos posibles
-    const userType = user.tipo || user.role || user.user_type || user.userType
+    // Verificar el tipo de usuario - el campo correcto es userType (con U mayúscula)
+    const userType = user.userType || user.tipo || user.role || user.user_type
     
-    console.log('🔐 Admin route protection check:', {
-      userEmail: user.email,
-      userType,
-      requiredRole,
-      userId: user.id,
-      availableUserFields: Object.keys(user), // Ver qué campos tiene el usuario
-      userObject: user // Log completo del usuario para debugging
-    })
-
     // Si el usuario no es del tipo requerido, redirigir
     if (userType !== requiredRole) {
-      console.log(`❌ Access denied. User type "${userType}" cannot access "${requiredRole}" route`)
-      
       // Mostrar mensaje más específico según el tipo de usuario
       const message = getAccessDeniedMessage(userType, requiredRole)
       alert(message)
@@ -68,8 +57,6 @@ export default function AdminProtectedRoute({ children, requiredRole = "refugio"
       router.push(redirectPath)
       return
     }
-
-    console.log('✅ Access granted to admin route')
   }, [user, loading, router, requiredRole])
 
   // Mostrar loading mientras se verifica la autenticación

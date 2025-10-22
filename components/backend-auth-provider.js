@@ -59,7 +59,6 @@ export function AuthProvider({ children }) {
             })
         } else if (token && !savedUser) {
           // Tenemos token pero no usuario guardado, intentar obtener perfil
-          console.log('🔍 Token found but no saved user, fetching profile...')
           try {
             const profile = await ApiService.getUserProfile()
             if (profile.user) {
@@ -175,6 +174,33 @@ export function AuthProvider({ children }) {
     }
   }
 
+  const refreshAuth = () => {
+    const token = ApiService.getToken()
+    const savedUser = ApiService.getUser()
+    
+    if (token && savedUser) {
+      console.log('🔄 Refreshing auth state from localStorage')
+      setUser(savedUser)
+    }
+  }
+
+  const checkUserAccess = (allowedTypes = []) => {
+    if (!user) return { allowed: false, redirectTo: '/auth/login' }
+    
+    // El campo correcto es userType (con U mayúscula)
+    const userType = user.userType || user.tipo || user.role || user.user_type
+    
+    if (allowedTypes.length > 0 && !allowedTypes.includes(userType)) {
+      // Si el usuario no está en la lista de tipos permitidos
+      if (userType === 'refugio') {
+        return { allowed: false, redirectTo: '/admin/refugio' }
+      }
+      return { allowed: false, redirectTo: '/' }
+    }
+    
+    return { allowed: true }
+  }
+
   const value = {
     user,
     loading,
@@ -183,6 +209,8 @@ export function AuthProvider({ children }) {
     register,
     registerByType,
     refreshUserProfile,
+    refreshAuth,
+    checkUserAccess,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

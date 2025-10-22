@@ -7,13 +7,13 @@ import { FavoritesTabs } from "../../components/favorites-tabs.js"
 import { FavoritePets } from "../../components/favorite-pets.js"
 import { FavoriteLostPets } from "../../components/favorite-lost-pets.js"
 import { FavoriteVeterinarians } from "../../components/favorite-veterinarians.js"
-import { ProtectedRoute } from "../../components/protected-route.jsx"
+import UserProtectedRoute from "../../components/user/user-protected-route.jsx"
 
 export default function FavoritesPage() {
   const [activeTab, setActiveTab] = useState("mascotas")
 
   return (
-    <ProtectedRoute>
+    <UserProtectedRoute>
       <div className="flex h-screen bg-background">
         <Sidebar />
         <div className="flex-1 flex flex-col">
@@ -38,7 +38,7 @@ export default function FavoritesPage() {
           </main>
         </div>
       </div>
-    </ProtectedRoute>
+    </UserProtectedRoute>
   )
 }
 

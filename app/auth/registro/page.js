@@ -6,7 +6,7 @@ import { Input } from "../../../components/ui/input.jsx"
 import { Label } from "../../../components/ui/label.jsx"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select.jsx"
 import { Textarea } from "../../../components/ui/textarea.jsx"
-import { ApiService } from "../../../lib/api.js"
+import { useAuth } from "../../../components/backend-auth-provider.js"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -37,6 +37,7 @@ export default function RegisterPage() {
   const [error, setError] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const { registerByType } = useAuth()
 
   const handleRegister = async (e) => {
     e.preventDefault()
@@ -171,21 +172,27 @@ export default function RegisterPage() {
         password: '***hidden***'
       })
 
-      const result = await ApiService.registerByType(userData, userType)
+      // Usar la función registerByType del AuthProvider que actualiza el estado global
+      const result = await registerByType(userData, userType)
       
       console.log('Registro exitoso:', result)
       
-      // Guardar token y datos del usuario si vienen en la respuesta
-      if (result.token) {
-        ApiService.setToken(result.token)
-        console.log('Token guardado')
-      }
-      
       if (result.user) {
-        ApiService.setUser(result.user)
-        console.log('Usuario guardado:', result.user)
-        // Si el registro es exitoso y retorna el usuario, ir al dashboard
-        router.push("/")
+        console.log('Usuario registrado y autenticado:', result.user)
+        
+        // Verificar el tipo tanto del formulario como del usuario retornado
+        const finalUserType = result.user.userType || userType
+        
+        // Redirigir según el tipo de usuario registrado
+        if (finalUserType === 'refugio') {
+          // Usuarios refugio van directamente al panel admin
+          router.push("/admin/refugio")
+        } else {
+          // Otros usuarios van a la página principal
+          router.push("/")
+        }
+        
+        router.refresh() // Forzar actualización de la página
       } else {
         // Si el registro requiere confirmación de email
         router.push("/auth/confirmacion")

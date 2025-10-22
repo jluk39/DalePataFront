@@ -3,11 +3,11 @@
 import { Sidebar } from "../../components/sidebar.js"
 import { Header } from "../../components/header.js"
 import { AppointmentTabs } from "../../components/appointment-tabs.jsx"
-import { ProtectedRoute } from "../../components/protected-route.jsx"
+import UserProtectedRoute from "../../components/user/user-protected-route.jsx"
 
 export default function TurnosPage() {
   return (
-    <ProtectedRoute>
+    <UserProtectedRoute>
       <div className="flex min-h-screen bg-background">
         <Sidebar />
         <div className="flex-1 flex flex-col">
@@ -22,7 +22,7 @@ export default function TurnosPage() {
           </main>
         </div>
       </div>
-    </ProtectedRoute>
+    </UserProtectedRoute>
   )
 }
 

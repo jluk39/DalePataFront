@@ -4,7 +4,7 @@ import { Button } from "../../../components/ui/button.jsx"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card.jsx"
 import { Input } from "../../../components/ui/input.jsx"
 import { Label } from "../../../components/ui/label.jsx"
-import { ApiService } from "../../../lib/api.js"
+import { useAuth } from "../../../components/backend-auth-provider.js"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -15,6 +15,7 @@ export default function LoginPage() {
   const [error, setError] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const { signIn } = useAuth()
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -22,19 +23,27 @@ export default function LoginPage() {
     setError(null)
 
     try {
-      const result = await ApiService.login(email, password)
+      // Usar la función signIn del AuthProvider que actualiza el estado global
+      const result = await signIn(email, password)
       
-      // Guardar token y datos del usuario
-      if (result.token) {
-        ApiService.setToken(result.token)
-      }
-      
+      // Redirigir según el tipo de usuario
       if (result.user) {
-        ApiService.setUser(result.user)
+        // El campo correcto es userType (con U mayúscula)
+        const userType = result.user.userType || result.user.tipo || result.user.role || result.user.user_type
+        
+        if (userType === 'refugio') {
+          // Usuarios refugio van directamente al panel admin
+          router.push("/admin/refugio")
+        } else {
+          // Otros usuarios van a la página principal
+          router.push("/")
+        }
+      } else {
+        // Fallback: ir a página principal
+        router.push("/")
       }
       
-      // Redirigir al usuario
-      router.push("/")
+      router.refresh() // Forzar actualización de la página
     } catch (error) {
       setError(error instanceof Error ? error.message : "Ocurrió un error")
     } finally {
