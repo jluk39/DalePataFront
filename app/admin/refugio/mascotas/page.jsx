@@ -115,7 +115,7 @@ export default function PetManagement() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Gestión de Mascotas</h1>
+          <h1 className="text-2xl font-bold">Gestión de Mascotas</h1>
           <p className="text-slate-400">Administra las mascotas de tu refugio</p>
         </div>
         <Button className="bg-primary hover:bg-primary/90 text-primary-foreground" onClick={() => setShowAddModal(true)}>
