@@ -163,9 +163,6 @@ export default function EditPetModal({ open, onOpenChange, pet, onPetUpdated }) 
       // Mostrar éxito
       alert(`✅ Mascota "${result.nombre}" actualizada exitosamente`)
 
-      // Recargar página para mostrar cambios
-      window.location.reload()
-
     } catch (error) {
       console.error("Error updating pet:", error)
       setError(error.message || 'Error al actualizar la mascota')

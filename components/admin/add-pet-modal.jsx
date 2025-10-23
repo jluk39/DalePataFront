@@ -137,10 +137,8 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
       // Llamar al API
       const resultado = await ApiService.createPet(formDataToSend)
 
-      // Llamar callback si existe
-      if (onSubmit) {
-        onSubmit(resultado)
-      }
+      // Mostrar mensaje de éxito
+      alert(`✅ Mascota "${resultado.nombre}" registrada exitosamente`)
 
       // Reset form
       setFormData({
@@ -159,13 +157,14 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
       setImageFile(null)
       setImagePreview(null)
       setError(null)
+
+      // Cerrar modal
       onOpenChange(false)
 
-      // Mostrar mensaje de éxito
-      alert(`✅ Mascota "${resultado.nombre}" registrada exitosamente`)
-      
-      // Recargar la página para mostrar la nueva mascota
-      window.location.reload()
+      // Llamar callback para recargar la lista
+      if (onSubmit) {
+        onSubmit(resultado)
+      }
     } catch (error) {
       console.error("Error adding pet:", error)
       setError(error.message || 'Error al registrar la mascota')

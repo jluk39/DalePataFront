@@ -10,8 +10,19 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../components/ui/select.jsx"
 import AddPetModal from "../../../../components/admin/add-pet-modal.jsx"
 import EditPetModal from "../../../../components/admin/edit-pet-modal.jsx"
+import ViewPetModal from "../../../../components/admin/view-pet-modal.jsx"
 import { ApiService } from "../../../../lib/api.js"
 import { useAuth } from "../../../../components/backend-auth-provider.js"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../../../../components/ui/alert-dialog.jsx"
 
 export default function PetManagement() {
   const { user } = useAuth()
@@ -21,39 +32,53 @@ export default function PetManagement() {
   const [searchTerm, setSearchTerm] = useState("")
   const [filterStatus, setFilterStatus] = useState("all")
   const [showAddModal, setShowAddModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [showViewModal, setShowViewModal] = useState(false)
+  const [selectedPet, setSelectedPet] = useState(null)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [petToDelete, setPetToDelete] = useState(null)
 
   useEffect(() => {
-    const fetchPets = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        const petsData = await ApiService.getAdminPets()
-        
-        // Filtrar mascotas por refugio_id del usuario logueado
-        const filteredPets = user?.id 
-          ? petsData.filter(pet => pet.refugio_id === user.id)
-          : petsData
-        
-        console.log('🐾 Mascotas filtradas por refugio:', {
-          total: petsData.length,
-          filtradas: filteredPets.length,
-          refugio_id: user?.id
-        })
-        
-        setPets(filteredPets)
-      } catch (error) {
-        console.error('Error fetching pets:', error)
-        setError(error.message)
-        setPets([]) // No mock data, just empty array
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    if (user) {
-      fetchPets()
-    }
+    fetchPets()
   }, [user])
+
+  const fetchPets = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const petsData = await ApiService.getAdminPets()
+      
+      // Filtrar mascotas por refugio_id del usuario logueado
+      // Y excluir las que ya tienen dueño (fueron adoptadas)
+      const filteredPets = user?.id 
+        ? petsData.filter(pet => {
+            // La mascota debe pertenecer al refugio
+            const perteneceAlRefugio = pet.refugio_id === user.id
+            
+            // La mascota NO debe tener dueño (aún no fue adoptada)
+            // Si duenio_usuario_id es null, la mascota sigue en el refugio
+            const noTieneDueno = !pet.duenio_usuario_id
+            
+            return perteneceAlRefugio && noTieneDueno
+          })
+        : petsData
+      
+      console.log('🐾 Mascotas filtradas por refugio:', {
+        total: petsData.length,
+        filtradas: filteredPets.length,
+        refugio_id: user?.id,
+        adoptadas_excluidas: petsData.filter(p => p.refugio_id === user.id && p.duenio_usuario_id).length
+      })
+      
+      setPets(filteredPets)
+    } catch (error) {
+      console.error('Error fetching pets:', error)
+      setError(error.message)
+      setPets([])
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const filteredPets = pets.filter((pet) => {
     const matchesSearch =
@@ -70,15 +95,50 @@ export default function PetManagement() {
   })
 
   const handleAddPet = async (newPetData) => {
-    alert('Funcionalidad no disponible: endpoint para crear mascotas no implementado')
+    console.log('✅ Mascota agregada:', newPetData)
+    // Recargar la lista de mascotas
+    await fetchPets()
   }
 
-  const handleUpdatePet = async (petId, updatedData) => {
-    alert('Funcionalidad no disponible: endpoint para actualizar mascotas no implementado')
+  const handleViewPet = (pet) => {
+    setSelectedPet(pet)
+    setShowViewModal(true)
   }
 
-  const handleDeletePet = async (petId) => {
-    alert('Funcionalidad no disponible: endpoint para eliminar mascotas no implementado')
+  const handleEditPet = (pet) => {
+    setSelectedPet(pet)
+    setShowEditModal(true)
+  }
+
+  const handlePetUpdated = (updatedPet) => {
+    console.log('✅ Mascota actualizada:', updatedPet)
+    // Recargar la lista de mascotas
+    fetchPets()
+  }
+
+  const handleDeleteClick = (pet) => {
+    setPetToDelete(pet)
+    setShowDeleteDialog(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!petToDelete) return
+
+    try {
+      await ApiService.deletePet(petToDelete.id)
+      console.log('✅ Mascota eliminada:', petToDelete.id)
+      
+      // Actualizar la lista eliminando la mascota
+      setPets(prevPets => prevPets.filter(p => p.id !== petToDelete.id))
+      
+      setShowDeleteDialog(false)
+      setPetToDelete(null)
+      
+      alert(`✅ Mascota "${petToDelete.nombre}" eliminada exitosamente`)
+    } catch (error) {
+      console.error('❌ Error eliminando mascota:', error)
+      alert(`Error al eliminar la mascota: ${error.message}`)
+    }
   }
 
   const getStatusBadge = (pet) => {
@@ -254,6 +314,7 @@ export default function PetManagement() {
                           size="sm"
                           className="text-muted-foreground hover:text-foreground hover:bg-accent/20"
                           title="Ver detalles"
+                          onClick={() => handleViewPet(pet)}
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
@@ -262,10 +323,7 @@ export default function PetManagement() {
                           size="sm"
                           className="text-muted-foreground hover:text-foreground hover:bg-accent/20"
                           title="Editar mascota"
-                          onClick={() => {
-                            // TODO: Implementar modal de edición
-                            console.log('Edit pet:', pet.id)
-                          }}
+                          onClick={() => handleEditPet(pet)}
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
@@ -274,7 +332,7 @@ export default function PetManagement() {
                           size="sm"
                           className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                           title="Eliminar mascota"
-                          onClick={() => handleDeletePet(pet.id)}
+                          onClick={() => handleDeleteClick(pet)}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -304,6 +362,42 @@ export default function PetManagement() {
 
       {/* Add Pet Modal */}
       <AddPetModal open={showAddModal} onOpenChange={setShowAddModal} onSubmit={handleAddPet} />
+
+      {/* View Pet Modal */}
+      <ViewPetModal open={showViewModal} onOpenChange={setShowViewModal} pet={selectedPet} />
+
+      {/* Edit Pet Modal */}
+      <EditPetModal
+        open={showEditModal}
+        onOpenChange={setShowEditModal}
+        pet={selectedPet}
+        onPetUpdated={handlePetUpdated}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent className="bg-background border-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-foreground">¿Eliminar mascota?</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
+              ¿Estás seguro de que deseas eliminar a{" "}
+              <span className="font-semibold text-foreground">{petToDelete?.nombre}</span>? Esta acción no se puede
+              deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-muted hover:bg-muted/80 text-foreground border-border">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+            >
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
