@@ -201,6 +201,12 @@ export function AuthProvider({ children }) {
     return { allowed: true }
   }
 
+  const updateUser = (updatedUserData) => {
+    console.log('🔄 Updating user data in context:', updatedUserData)
+    setUser(updatedUserData)
+    ApiService.setUser(updatedUserData)
+  }
+
   const value = {
     user,
     loading,
@@ -211,6 +217,7 @@ export function AuthProvider({ children }) {
     refreshUserProfile,
     refreshAuth,
     checkUserAccess,
+    updateUser,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
