@@ -7,7 +7,7 @@ import { Input } from "../../../../components/ui/input.jsx"
 import { Label } from "../../../../components/ui/label.jsx"
 import { useState, useEffect } from "react"
 import { ApiService } from "../../../../lib/api.js"
-import { User, Mail, Phone, MapPin, Building, Save, Eye, EyeOff } from "lucide-react"
+import { User, Mail, Phone, MapPin, Save, Eye, EyeOff } from "lucide-react"
 import { useToast } from "../../../../hooks/use-toast.js"
 import { Alert, AlertDescription } from "../../../../components/ui/alert.jsx"
 
@@ -24,8 +24,6 @@ export default function ConfiguracionPage() {
     email: '',
     telefono: '',
     direccion: '',
-    nombre_refugio: '',
-    descripcion: '',
   })
 
   const [passwordData, setPasswordData] = useState({
@@ -41,8 +39,6 @@ export default function ConfiguracionPage() {
         email: user.email || '',
         telefono: user.telefono || '',
         direccion: user.direccion || '',
-        nombre_refugio: user.nombre_refugio || '',
-        descripcion: user.descripcion || '',
       })
     }
   }, [user])
@@ -164,7 +160,7 @@ export default function ConfiguracionPage() {
           <CardHeader>
             <CardTitle className="text-foreground flex items-center">
               <User className="w-5 h-5 mr-2" />
-              Información Personal y del Refugio
+              Información De Refugio
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -179,7 +175,7 @@ export default function ConfiguracionPage() {
                     value={formData.nombre}
                     onChange={handleInputChange}
                     className="mt-1"
-                    placeholder="Tu nombre completo"
+                    placeholder="Nombre refugio completo"
                     required
                   />
                 </div>
@@ -226,40 +222,7 @@ export default function ConfiguracionPage() {
                     placeholder="Tu dirección completa"
                   />
                 </div>
-
-                <div>
-                  <Label htmlFor="nombre_refugio" className="text-foreground">Nombre del Refugio</Label>
-                  <Input
-                    id="nombre_refugio"
-                    name="nombre_refugio"
-                    type="text"
-                    value={formData.nombre_refugio}
-                    onChange={handleInputChange}
-                    className="mt-1"
-                    placeholder="Nombre de tu refugio"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="descripcion" className="text-foreground">Descripción</Label>
-                  <textarea
-                    id="descripcion"
-                    name="descripcion"
-                    value={formData.descripcion}
-                    onChange={handleInputChange}
-                    className="mt-1 w-full min-h-[100px] px-3 py-2 text-sm bg-background border border-input rounded-md placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent resize-vertical"
-                    placeholder="Descripción de tu refugio, misión, servicios..."
-                    rows={4}
-                  />
-                </div>
               </div>
-
-              <Alert className="border-blue-200 bg-blue-50">
-                <Building className="h-4 w-4" />
-                <AlertDescription className="text-blue-800">
-                  La información del refugio será visible para los usuarios que vean tus mascotas.
-                </AlertDescription>
-              </Alert>
 
               <Button 
                 type="submit" 
