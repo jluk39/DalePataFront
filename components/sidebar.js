@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Heart, MapPin } from "lucide-react"
+import { Home, Heart, MapPin, ClipboardList } from "lucide-react"
 import { cn } from "../lib/utils.js"
 
 const navigation = [
@@ -20,6 +20,11 @@ const navigation = [
     name: "Perdidos",
     href: "/perdidos",
     icon: MapPin,
+  },
+  {
+    name: "Seguimiento",
+    href: "/seguimiento",
+    icon: ClipboardList,
   },
 ]
 
