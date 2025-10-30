@@ -193,7 +193,7 @@ export default function ConfiguracionPage() {
                     readOnly
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    El correo electrónico no puede ser modificado
+                    En caso de necesitar modificar tu correo, contacta al soporte.
                   </p>
                 </div>
 
