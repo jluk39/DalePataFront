@@ -10,6 +10,7 @@ import { ApiService } from "../../../../lib/api.js"
 import { User, Mail, Phone, MapPin, Save, Eye, EyeOff } from "lucide-react"
 import { useToast } from "../../../../hooks/use-toast.js"
 import { Alert, AlertDescription } from "../../../../components/ui/alert.jsx"
+import { Toaster } from "../../../../components/ui/toaster-simple.jsx"
 
 export default function ConfiguracionPage() {
   const { user, updateUser } = useAuth()
@@ -70,15 +71,15 @@ export default function ConfiguracionPage() {
       updateUser(updatedUser)
       
       toast({
-        title: "Perfil actualizado",
-        description: "Tus datos han sido actualizados correctamente.",
+        title: "✅ Perfil actualizado",
+        description: "Los cambios en tu información personal han sido guardados exitosamente.",
         variant: "default",
       })
     } catch (error) {
       console.error('Error updating profile:', error)
       toast({
-        title: "Error",
-        description: error.message || "No se pudo actualizar el perfil.",
+        title: "❌ Error al actualizar",
+        description: error.message || "No se pudieron guardar los cambios en tu perfil. Inténtalo nuevamente.",
         variant: "destructive",
       })
     } finally {
@@ -91,8 +92,8 @@ export default function ConfiguracionPage() {
     
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       toast({
-        title: "Error",
-        description: "Las contraseñas no coinciden.",
+        title: "⚠️ Contraseñas no coinciden",
+        description: "La nueva contraseña y su confirmación deben ser idénticas.",
         variant: "destructive",
       })
       return
@@ -100,8 +101,8 @@ export default function ConfiguracionPage() {
 
     if (passwordData.newPassword.length < 6) {
       toast({
-        title: "Error",
-        description: "La nueva contraseña debe tener al menos 6 caracteres.",
+        title: "⚠️ Contraseña muy corta",
+        description: "La nueva contraseña debe tener al menos 6 caracteres para mayor seguridad.",
         variant: "destructive",
       })
       return
@@ -122,15 +123,15 @@ export default function ConfiguracionPage() {
       })
       
       toast({
-        title: "Contraseña actualizada",
-        description: "Tu contraseña ha sido cambiada correctamente.",
+        title: "🔐 Contraseña actualizada",
+        description: "Tu nueva contraseña ha sido establecida correctamente. Recuerda mantenerla segura.",
         variant: "default",
       })
     } catch (error) {
       console.error('Error updating password:', error)
       toast({
-        title: "Error",
-        description: error.message || "No se pudo actualizar la contraseña.",
+        title: "❌ Error de contraseña",
+        description: error.message || "No se pudo cambiar la contraseña. Verifica que la contraseña actual sea correcta.",
         variant: "destructive",
       })
     } finally {
@@ -371,6 +372,9 @@ export default function ConfiguracionPage() {
           </form>
         </CardContent>
       </Card>
+      
+      {/* Toaster para notificaciones */}
+      <Toaster />
     </div>
   )
 }
