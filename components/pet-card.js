@@ -4,16 +4,18 @@ import { useState } from "react"
 import { Card, CardContent } from "./ui/card.jsx"
 import { Badge } from "./ui/badge.jsx"
 import { Button } from "./ui/button.jsx"
-import { Heart, MapPin, Edit2, Trash2 } from "lucide-react"
+import { Heart, MapPin, Edit2, Trash2, AlertCircle } from "lucide-react"
 import { useAuth } from "./backend-auth-provider.js"
 import { ApiService } from "../lib/api.js"
 import EditPetModal from "./admin/edit-pet-modal.jsx"
 import UserEditPetModal from "./user/user-edit-pet-modal.jsx"
+import { ReportLostModal } from "./report-lost-modal.jsx"
 
 export function PetCard({ pet, showFavoriteButton = true, showOwnerActions = false, onPetDeleted, onPetUpdated, useUserModals = false }) {
   const { user } = useAuth()
   const [isFavorite, setIsFavorite] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
+  const [showReportLostModal, setShowReportLostModal] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
   const toggleFavorite = (e) => {
@@ -71,6 +73,15 @@ export function PetCard({ pet, showFavoriteButton = true, showOwnerActions = fal
         <div className="absolute top-2 right-2 flex gap-1">
           {showOwnerActions && user && (
             <>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="w-8 h-8 bg-white/80 hover:bg-white"
+                onClick={() => setShowReportLostModal(true)}
+                title="Reportar como perdida"
+              >
+                <AlertCircle className="w-4 h-4 text-orange-600" />
+              </Button>
               <Button
                 variant="ghost"
                 size="icon"
@@ -158,6 +169,19 @@ export function PetCard({ pet, showFavoriteButton = true, showOwnerActions = fal
             onPetUpdated={onPetUpdated}
           />
         )
+      )}
+
+      {/* Modal para reportar como perdida */}
+      {showOwnerActions && (
+        <ReportLostModal
+          pet={pet}
+          open={showReportLostModal}
+          onOpenChange={setShowReportLostModal}
+          onSuccess={() => {
+            // Opcionalmente recargar la lista o mostrar un mensaje
+            console.log('Mascota reportada como perdida exitosamente')
+          }}
+        />
       )}
     </Card>
   )

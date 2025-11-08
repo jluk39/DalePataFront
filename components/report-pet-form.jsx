@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card.jsx"
@@ -7,100 +7,150 @@ import { Input } from "./ui/input.jsx"
 import { Label } from "./ui/label.jsx"
 import { Textarea } from "./ui/textarea.jsx"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select.jsx"
-import { RadioGroup, RadioGroupItem } from "./ui/radio-group.jsx"
-import { Checkbox } from "./ui/checkbox.jsx"
 import { Calendar } from "./ui/calendar.jsx"
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover.jsx"
-import { CalendarIcon, Upload } from "lucide-react"
+import { CalendarIcon, Loader2 } from "lucide-react"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
+import { MapboxGeocoderInput } from "./mapbox-geocoder.jsx"
+import { ApiService } from "../lib/api.js"
+import { useToast } from "../hooks/use-toast"
+import { useRouter } from "next/navigation"
 
 export function ReportPetForm() {
-  const [reportType, setReportType] = useState("lost")
+  const { toast } = useToast()
+  const router = useRouter()
   const [date, setDate] = useState()
+  const [loading, setLoading] = useState(false)
+  const [calendarOpen, setCalendarOpen] = useState(false)
+  const [locationData, setLocationData] = useState({
+    address: '',
+    lat: null,
+    lon: null
+  })
+  
   const [formData, setFormData] = useState({
-    // Pet Info
     petName: "",
     petType: "",
     breed: "",
-    age: "",
     gender: "",
     color: "",
     size: "",
     description: "",
-
-    // Location & Date
-    location: "",
-    lastSeenDate: "",
-
-    // Contact Info
-    contactName: "",
-    contactPhone: "",
-    contactEmail: "",
-
-    // Additional Info
-    reward: "",
-    hasReward: false,
-    urgent: false,
-    additionalInfo: "",
   })
 
-  const handleSubmit = (e) => {
+  const handleLocationSelect = (location) => {
+    console.log('📍 Ubicación seleccionada:', location)
+    setLocationData({
+      address: location.address,
+      lat: location.lat,
+      lon: location.lon
+    })
+  }
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log("Report submitted:", { reportType, ...formData, lastSeenDate: date })
-    alert(`¡Reporte de mascota ${reportType === "lost" ? "perdida" : "encontrada"} enviado exitosamente!`)
+    setLoading(true)
+
+    try {
+      if (!locationData.address) {
+        toast({
+          title: "Ubicación requerida",
+          description: "Por favor, selecciona una ubicación",
+          variant: "destructive"
+        })
+        setLoading(false)
+        return
+      }
+
+      if (!formData.petName || !formData.petType) {
+        toast({
+          title: "Campos requeridos",
+          description: "Por favor, completa nombre y tipo de animal",
+          variant: "destructive"
+        })
+        setLoading(false)
+        return
+      }
+
+      if (!date) {
+        toast({
+          title: "Fecha requerida",
+          description: "Por favor, selecciona la fecha del avistamiento",
+          variant: "destructive"
+        })
+        setLoading(false)
+        return
+      }
+
+      const reportData = {
+        nombre: formData.petName,
+        especie: formData.petType,
+        sexo: formData.gender || null,
+        raza: formData.breed || null,
+        color: formData.color || null,
+        descripcion: formData.description || null,
+        perdida_direccion: locationData.address,
+        perdida_lat: locationData.lat,
+        perdida_lon: locationData.lon,
+      }
+
+      console.log('📤 Enviando reporte:', reportData)
+
+      const result = await ApiService.reportLostPetSighting(reportData)
+
+      toast({
+        title: "✅ Reporte enviado",
+        description: "Avistamiento registrado exitosamente"
+      })
+
+      setTimeout(() => {
+        router.push('/perdidos')
+      }, 1500)
+
+    } catch (error) {
+      console.error('Error al enviar reporte:', error)
+      toast({
+        title: "Error",
+        description: error.message || 'No se pudo enviar el reporte',
+        variant: "destructive"
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Report Type */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Tipo de Reporte</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <RadioGroup value={reportType} onValueChange={(value) => setReportType(value | "found")}>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="lost" id="lost" />
-              <Label htmlFor="lost">Mascota Perdida - Busco a mi mascota</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="found" id="found" />
-              <Label htmlFor="found">Mascota Encontrada - Encontré una mascota</Label>
-            </div>
-          </RadioGroup>
-        </CardContent>
-      </Card>
-
-      {/* Pet Information */}
       <Card>
         <CardHeader>
           <CardTitle>Información de la Mascota</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label htmlFor="petName">{reportType === "lost" ? "Nombre de la mascota" : "Nombre (si lo conoces)"}</Label>
+            <Label htmlFor="petName">Nombre o descripción *</Label>
             <Input
               id="petName"
               value={formData.petName}
               onChange={(e) => setFormData({ ...formData, petName: e.target.value })}
-              placeholder={reportType === "lost" ? "Nombre de tu mascota" : "Desconocido si no sabes"}
+              placeholder="Ej: Perro encontrado, Max, etc."
+              required
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label>Tipo de Animal</Label>
-              <Select onValueChange={(value) => setFormData({ ...formData, petType: value })}>
+              <Label>Tipo de Animal *</Label>
+              <Select onValueChange={(value) => setFormData({ ...formData, petType: value })} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="perro">Perro</SelectItem>
-                  <SelectItem value="gato">Gato</SelectItem>
-                  <SelectItem value="conejo">Conejo</SelectItem>
-                  <SelectItem value="ave">Ave</SelectItem>
-                  <SelectItem value="otro">Otro</SelectItem>
+                  <SelectItem value="Perro">Perro</SelectItem>
+                  <SelectItem value="Gato">Gato</SelectItem>
+                  <SelectItem value="Conejo">Conejo</SelectItem>
+                  <SelectItem value="Ave">Ave</SelectItem>
+                  <SelectItem value="Otro">Otro</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -111,27 +161,12 @@ export function ReportPetForm() {
                 id="breed"
                 value={formData.breed}
                 onChange={(e) => setFormData({ ...formData, breed: e.target.value })}
-                placeholder="Ej: Labrador, Mestizo, etc."
+                placeholder="Ej: Labrador, Mestizo"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-3 gap-4">
-            <div>
-              <Label>Edad Aproximada</Label>
-              <Select onValueChange={(value) => setFormData({ ...formData, age: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="cachorro">Cachorro (0-1 año)</SelectItem>
-                  <SelectItem value="joven">Joven (1-3 años)</SelectItem>
-                  <SelectItem value="adulto">Adulto (3-7 años)</SelectItem>
-                  <SelectItem value="senior">Senior (7+ años)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
             <div>
               <Label>Género</Label>
               <Select onValueChange={(value) => setFormData({ ...formData, gender: value })}>
@@ -139,9 +174,9 @@ export function ReportPetForm() {
                   <SelectValue placeholder="Seleccionar" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="macho">Macho</SelectItem>
-                  <SelectItem value="hembra">Hembra</SelectItem>
-                  <SelectItem value="desconocido">No estoy seguro</SelectItem>
+                  <SelectItem value="Macho">Macho</SelectItem>
+                  <SelectItem value="Hembra">Hembra</SelectItem>
+                  <SelectItem value="Desconocido">No estoy seguro</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -153,22 +188,22 @@ export function ReportPetForm() {
                   <SelectValue placeholder="Seleccionar" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="pequeño">Pequeño</SelectItem>
-                  <SelectItem value="mediano">Mediano</SelectItem>
-                  <SelectItem value="grande">Grande</SelectItem>
+                  <SelectItem value="Pequeño">Pequeño</SelectItem>
+                  <SelectItem value="Mediano">Mediano</SelectItem>
+                  <SelectItem value="Grande">Grande</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-          </div>
 
-          <div>
-            <Label htmlFor="color">Color/Colores</Label>
-            <Input
-              id="color"
-              value={formData.color}
-              onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-              placeholder="Ej: Negro, Blanco y marrón, Dorado, etc."
-            />
+            <div>
+              <Label htmlFor="color">Color</Label>
+              <Input
+                id="color"
+                value={formData.color}
+                onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                placeholder="Ej: Negro, Marrón"
+              />
+            </div>
           </div>
 
           <div>
@@ -177,171 +212,79 @@ export function ReportPetForm() {
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Describe características distintivas, comportamiento, collar, etc."
+              placeholder="Describe características distintivas..."
               rows={4}
             />
-          </div>
-
-          {/* Photo Upload */}
-          <div>
-            <Label>Foto de la Mascota</Label>
-            <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
-              <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground mb-2">Arrastra una foto aquí o haz clic para seleccionar</p>
-              <Button type="button" variant="outline" size="sm">
-                Seleccionar Foto
-              </Button>
-            </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Location & Date */}
       <Card>
         <CardHeader>
           <CardTitle>Ubicación y Fecha</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label htmlFor="location">
-              {reportType === "lost" ? "Lugar donde se perdió" : "Lugar donde fue encontrada"}
-            </Label>
-            <Input
-              id="location"
-              value={formData.location}
-              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              placeholder="Ej: Parque Centenario, Villa Crespo, CABA"
+            <Label>Lugar donde fue vista *</Label>
+            <p className="text-sm text-muted-foreground mb-2">
+              Escribe la dirección y selecciona una opción
+            </p>
+            <MapboxGeocoderInput
+              onResult={handleLocationSelect}
+              placeholder="Ej: Parque Centenario, CABA"
             />
+            {locationData.address && (
+              <p className="text-sm text-green-600 mt-2">
+                ✓ {locationData.address}
+              </p>
+            )}
           </div>
 
           <div>
-            <Label>{reportType === "lost" ? "Fecha en que se perdió" : "Fecha en que fue encontrada"}</Label>
-            <Popover>
+            <Label>Fecha en que fue vista *</Label>
+            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="w-full justify-start text-left font-normal bg-transparent">
+                <Button variant="outline" className="w-full justify-start text-left font-normal">
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {date ? format(date, "PPP", { locale: es }) : "Seleccionar fecha"}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar mode="single" selected={date} onSelect={setDate} initialFocus />
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar 
+                  mode="single" 
+                  selected={date} 
+                  onSelect={(newDate) => {
+                    setDate(newDate)
+                    setCalendarOpen(false)
+                  }} 
+                  initialFocus 
+                />
               </PopoverContent>
             </Popover>
           </div>
         </CardContent>
       </Card>
 
-      {/* Contact Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Información de Contacto</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label htmlFor="contactName">Nombre Completo</Label>
-            <Input
-              id="contactName"
-              value={formData.contactName}
-              onChange={(e) => setFormData({ ...formData, contactName: e.target.value })}
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="contactPhone">Teléfono</Label>
-              <Input
-                id="contactPhone"
-                value={formData.contactPhone}
-                onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
-                placeholder="+54 11 1234-5678"
-                required
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="contactEmail">Email</Label>
-              <Input
-                id="contactEmail"
-                type="email"
-                value={formData.contactEmail}
-                onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
-                required
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Additional Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Información Adicional</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {reportType === "lost" && (
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="hasReward"
-                  checked={formData.hasReward}
-                  onCheckedChange={(checked) => setFormData({ ...formData, hasReward: checked })}
-                />
-                <Label htmlFor="hasReward">Ofrezco recompensa</Label>
-              </div>
-
-              {formData.hasReward && (
-                <div>
-                  <Label htmlFor="reward">Monto de la Recompensa</Label>
-                  <Input
-                    id="reward"
-                    value={formData.reward}
-                    onChange={(e) => setFormData({ ...formData, reward: e.target.value })}
-                    placeholder="Ej: $50.000"
-                  />
-                </div>
-              )}
-            </div>
+      <div className="flex justify-end gap-4">
+        <Button 
+          type="button" 
+          variant="outline" 
+          onClick={() => router.back()}
+          disabled={loading}
+        >
+          Cancelar
+        </Button>
+        <Button type="submit" size="lg" disabled={loading}>
+          {loading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Enviando...
+            </>
+          ) : (
+            'Reportar Mascota Encontrada'
           )}
-
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="urgent"
-              checked={formData.urgent}
-              onCheckedChange={(checked) => setFormData({ ...formData, urgent: checked })}
-            />
-            <Label htmlFor="urgent">
-              {reportType === "lost"
-                ? "Caso urgente (mascota enferma o en peligro)"
-                : "Caso urgente (mascota necesita cuidados inmediatos)"}
-            </Label>
-          </div>
-
-          <div>
-            <Label htmlFor="additionalInfo">Información Adicional</Label>
-            <Textarea
-              id="additionalInfo"
-              value={formData.additionalInfo}
-              onChange={(e) => setFormData({ ...formData, additionalInfo: e.target.value })}
-              placeholder="Cualquier información adicional que pueda ayudar..."
-              rows={3}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="flex justify-end">
-        <Button type="submit" size="lg">
-          {reportType === "lost" ? "Reportar Mascota Perdida" : "Reportar Mascota Encontrada"}
         </Button>
       </div>
     </form>
   )
 }
-
-
-
-
-
-
-
