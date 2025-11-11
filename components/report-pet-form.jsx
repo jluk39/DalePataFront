@@ -9,7 +9,7 @@ import { Textarea } from "./ui/textarea.jsx"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select.jsx"
 import { Calendar } from "./ui/calendar.jsx"
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover.jsx"
-import { CalendarIcon, Loader2 } from "lucide-react"
+import { CalendarIcon, Loader2, Upload, X, ImageIcon } from "lucide-react"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
 import { MapboxGeocoderInput } from "./mapbox-geocoder.jsx"
@@ -23,6 +23,8 @@ export function ReportPetForm() {
   const [date, setDate] = useState()
   const [loading, setLoading] = useState(false)
   const [calendarOpen, setCalendarOpen] = useState(false)
+  const [imageFile, setImageFile] = useState(null)
+  const [imagePreview, setImagePreview] = useState(null)
   const [locationData, setLocationData] = useState({
     address: '',
     lat: null,
@@ -46,6 +48,47 @@ export function ReportPetForm() {
       lat: location.lat,
       lon: location.lon
     })
+  }
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validar tipo de archivo
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+    if (!validTypes.includes(file.type)) {
+      toast({
+        title: "Formato inválido",
+        description: "Solo se permiten archivos JPG, PNG o WEBP",
+        variant: "destructive"
+      })
+      return
+    }
+
+    // Validar tamaño (máx 5MB)
+    const maxSize = 5 * 1024 * 1024 // 5MB
+    if (file.size > maxSize) {
+      toast({
+        title: "Archivo muy grande",
+        description: "La imagen no debe superar los 5MB",
+        variant: "destructive"
+      })
+      return
+    }
+
+    setImageFile(file)
+    
+    // Crear preview
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setImagePreview(reader.result)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleRemoveImage = () => {
+    setImageFile(null)
+    setImagePreview(null)
   }
 
   const handleSubmit = async (e) => {
@@ -83,25 +126,46 @@ export function ReportPetForm() {
         return
       }
 
-      const reportData = {
-        nombre: formData.petName,
-        especie: formData.petType,
-        sexo: formData.gender || null,
-        raza: formData.breed || null,
-        color: formData.color || null,
-        descripcion: formData.description || null,
-        perdida_direccion: locationData.address,
-        perdida_lat: locationData.lat,
-        perdida_lon: locationData.lon,
+      if (!imageFile) {
+        toast({
+          title: "Imagen requerida",
+          description: "Por favor, sube una foto de la mascota",
+          variant: "destructive"
+        })
+        setLoading(false)
+        return
       }
 
-      console.log('📤 Enviando reporte:', reportData)
+      // Crear FormData para enviar con imagen
+      const formDataToSend = new FormData()
+      
+      // Agregar campos de texto
+      formDataToSend.append('nombre', formData.petName)
+      formDataToSend.append('especie', formData.petType)
+      formDataToSend.append('perdida_direccion', locationData.address)
+      
+      // Solo agregar género si se seleccionó "Macho" o "Hembra" (no "unknown")
+      if (formData.gender && formData.gender !== 'unknown') {
+        formDataToSend.append('sexo', formData.gender)
+      }
+      if (formData.breed) formDataToSend.append('raza', formData.breed)
+      if (formData.color) formDataToSend.append('color', formData.color)
+      if (formData.description) formDataToSend.append('descripcion', formData.description)
+      
+      // Agregar coordenadas si existen
+      if (locationData.lat) formDataToSend.append('perdida_lat', locationData.lat.toString())
+      if (locationData.lon) formDataToSend.append('perdida_lon', locationData.lon.toString())
+      
+      // Agregar imagen (obligatoria) - el backend espera el campo "imagen"
+      formDataToSend.append('imagen', imageFile)
 
-      const result = await ApiService.reportLostPetSighting(reportData)
+      console.log('📤 Enviando reporte con imagen')
+
+      const result = await ApiService.reportLostPetSighting(formDataToSend)
 
       toast({
         title: "✅ Reporte enviado",
-        description: "Avistamiento registrado exitosamente"
+        description: "Avistamiento registrado con imagen exitosamente"
       })
 
       setTimeout(() => {
@@ -148,9 +212,6 @@ export function ReportPetForm() {
                 <SelectContent>
                   <SelectItem value="Perro">Perro</SelectItem>
                   <SelectItem value="Gato">Gato</SelectItem>
-                  <SelectItem value="Conejo">Conejo</SelectItem>
-                  <SelectItem value="Ave">Ave</SelectItem>
-                  <SelectItem value="Otro">Otro</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -176,7 +237,7 @@ export function ReportPetForm() {
                 <SelectContent>
                   <SelectItem value="Macho">Macho</SelectItem>
                   <SelectItem value="Hembra">Hembra</SelectItem>
-                  <SelectItem value="Desconocido">No estoy seguro</SelectItem>
+                  <SelectItem value="unknown">No estoy seguro</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -215,6 +276,57 @@ export function ReportPetForm() {
               placeholder="Describe características distintivas..."
               rows={4}
             />
+          </div>
+
+          {/* Sección de carga de imagen */}
+          <div>
+            <Label>Foto de la Mascota *</Label>
+            <p className="text-sm text-muted-foreground mb-2">
+              Una foto es esencial para identificar a la mascota (máx 5MB)
+            </p>
+            
+            {!imagePreview ? (
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                <input
+                  type="file"
+                  id="image-upload"
+                  accept="image/jpeg,image/jpg,image/png,image/webp"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+                <label htmlFor="image-upload" className="cursor-pointer">
+                  <div className="flex flex-col items-center space-y-2">
+                    <ImageIcon className="w-12 h-12 text-gray-400" />
+                    <div className="text-sm text-gray-600">
+                      <span className="font-semibold text-primary">Click para subir</span> o arrastra una imagen
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      JPG, PNG o WEBP (máx. 5MB)
+                    </p>
+                  </div>
+                </label>
+              </div>
+            ) : (
+              <div className="relative border-2 border-gray-300 rounded-lg p-4">
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  className="absolute top-2 right-2 z-10"
+                  onClick={handleRemoveImage}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="w-full h-64 object-cover rounded-lg"
+                />
+                <p className="text-sm text-gray-600 mt-2 text-center">
+                  {imageFile?.name} ({(imageFile?.size / 1024).toFixed(2)} KB)
+                </p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -256,7 +368,8 @@ export function ReportPetForm() {
                   onSelect={(newDate) => {
                     setDate(newDate)
                     setCalendarOpen(false)
-                  }} 
+                  }}
+                  disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
                   initialFocus 
                 />
               </PopoverContent>
