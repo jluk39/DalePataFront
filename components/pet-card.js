@@ -17,6 +17,7 @@ export function PetCard({ pet, showFavoriteButton = true, showOwnerActions = fal
   const [showEditModal, setShowEditModal] = useState(false)
   const [showReportLostModal, setShowReportLostModal] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [markingAsFound, setMarkingAsFound] = useState(false)
 
   const toggleFavorite = (e) => {
     e.stopPropagation()
@@ -27,6 +28,33 @@ export function PetCard({ pet, showFavoriteButton = true, showOwnerActions = fal
   const handleEditClick = (e) => {
     e.stopPropagation()
     setShowEditModal(true)
+  }
+
+  const handleMarkAsFoundClick = async (e) => {
+    e.stopPropagation()
+    
+    const confirmed = window.confirm(
+      `¿Confirmas que ${pet.name} ha sido encontrada?\n\nEsto actualizará el estado de la mascota y notificará que ya no está perdida.`
+    )
+    
+    if (!confirmed) return
+    
+    setMarkingAsFound(true)
+    
+    try {
+      await ApiService.markPetAsFound(pet.id, 'Mascota encontrada por el dueño')
+      
+      alert(`✅ ¡Qué buena noticia! ${pet.name} ha sido marcada como encontrada.`)
+      
+      // Recargar página para actualizar el estado
+      window.location.reload()
+      
+    } catch (error) {
+      console.error('Error marking pet as found:', error)
+      alert(`❌ Error al marcar como encontrada: ${error.message}`)
+    } finally {
+      setMarkingAsFound(false)
+    }
   }
 
   const handleDeleteClick = async (e) => {
@@ -68,20 +96,24 @@ export function PetCard({ pet, showFavoriteButton = true, showOwnerActions = fal
           className="w-full h-48 object-cover"
         />
         {pet.urgent && <Badge className="absolute top-2 left-2 bg-red-500 text-white">Urgente</Badge>}
+        {pet.isLost && <Badge className="absolute top-2 left-2 bg-orange-500 text-white">Perdida</Badge>}
         
         {/* Botones en la esquina superior derecha */}
         <div className="absolute top-2 right-2 flex gap-1">
           {showOwnerActions && user && (
             <>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="w-8 h-8 bg-white/80 hover:bg-white"
-                onClick={() => setShowReportLostModal(true)}
-                title="Reportar como perdida"
-              >
-                <AlertCircle className="w-4 h-4 text-orange-600" />
-              </Button>
+              {/* Solo mostrar botón de reportar perdida si NO está perdida */}
+              {!pet.isLost && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="w-8 h-8 bg-white/80 hover:bg-white"
+                  onClick={() => setShowReportLostModal(true)}
+                  title="Reportar como perdida"
+                >
+                  <AlertCircle className="w-4 h-4 text-orange-600" />
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="icon"
@@ -149,6 +181,28 @@ export function PetCard({ pet, showFavoriteButton = true, showOwnerActions = fal
           <p className="text-sm text-muted-foreground line-clamp-2">
             {pet.description || "Aún no hay una descripción. Puedes agregar una editando la mascota"}
           </p>
+
+          {/* Botón grande de "Marcar como encontrada" solo si está perdida */}
+          {showOwnerActions && pet.isLost && (
+            <Button
+              onClick={handleMarkAsFoundClick}
+              disabled={markingAsFound}
+              className="w-full bg-green-600 hover:bg-green-700 text-white"
+              size="lg"
+            >
+              {markingAsFound ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Marcando...
+                </>
+              ) : (
+                <>
+                  <AlertCircle className="w-4 h-4 mr-2" />
+                  Marcar como Encontrada
+                </>
+              )}
+            </Button>
+          )}
         </div>
       </CardContent>
       
