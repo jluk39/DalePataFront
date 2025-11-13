@@ -47,7 +47,7 @@ export function LostFoundCard({ pet }) {
             {pet.breed} • {pet.age} • {pet.gender}
           </p>
           <p className="text-sm text-muted-foreground">
-            Color • Tamaño
+            {pet.color} • {pet.size}
           </p>
         </div>
 

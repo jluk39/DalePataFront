@@ -17,7 +17,7 @@ export function LostFoundTabs() {
         <Link href="/perdidos/reportar">
           <Button>
             <Plus className="h-4 w-4 mr-2" />
-            Reportar Avistamiento
+            Reportar Mascota Perdida
           </Button>
         </Link>
       </div>

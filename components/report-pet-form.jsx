@@ -150,6 +150,7 @@ export function ReportPetForm() {
       }
       if (formData.breed) formDataToSend.append('raza', formData.breed)
       if (formData.color) formDataToSend.append('color', formData.color)
+      if (formData.size) formDataToSend.append('tamaño', formData.size)
       if (formData.description) formDataToSend.append('descripcion', formData.description)
       
       // Agregar coordenadas si existen
@@ -158,8 +159,6 @@ export function ReportPetForm() {
       
       // Agregar imagen (obligatoria) - el backend espera el campo "imagen"
       formDataToSend.append('imagen', imageFile)
-
-      console.log('📤 Enviando reporte con imagen')
 
       const result = await ApiService.reportLostPetSighting(formDataToSend)
 
