@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../../../components
 import { Button } from "../../../../components/ui/button.jsx"
 import { Input } from "../../../../components/ui/input.jsx"
 import { Badge } from "../../../../components/ui/badge.jsx"
-import { Search, Check, X, Eye, Clock, User, Heart, Phone, Mail, MapPin, Loader2 } from "lucide-react"
+import { Search, Check, X, Eye, Clock, User, Heart, Phone, Mail, Loader2, Home, Trees, Shield, PawPrint, Timer, FileText, Calendar } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../../components/ui/table.jsx"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../components/ui/select.jsx"
 import {
@@ -83,6 +83,13 @@ export default function AdoptionRequests() {
   }
 
   const handleApprove = async (requestId) => {
+    const confirmacion = window.confirm(
+      '¿Estás seguro de que deseas aprobar esta solicitud de adopción?\n\n' +
+      'Al aprobar, la mascota será asignada al adoptante y las demás solicitudes pendientes para esta mascota serán rechazadas automáticamente.'
+    )
+    
+    if (!confirmacion) return
+    
     try {
       const result = await ApiService.updateAdoptionRequestStatus(requestId, 'aprobada', 'Solicitud aprobada por el refugio')
       
@@ -106,6 +113,13 @@ export default function AdoptionRequests() {
   }
 
   const handleReject = async (requestId) => {
+    const confirmacion = window.confirm(
+      '¿Estás seguro de que deseas rechazar esta solicitud de adopción?\n\n' +
+      'Esta acción no se puede deshacer.'
+    )
+    
+    if (!confirmacion) return
+    
     try {
       await ApiService.updateAdoptionRequestStatus(requestId, 'rechazada', 'Solicitud rechazada por el refugio')
       
@@ -269,10 +283,7 @@ export default function AdoptionRequests() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div>
-                        <p className="text-foreground font-medium">{request.adoptante_nombre}</p>
-                        <p className="text-muted-foreground text-sm">{request.adoptante_direccion}</p>
-                      </div>
+                      <p className="text-foreground font-medium">{request.adoptante_nombre}</p>
                     </TableCell>
                     <TableCell>
                       <div className="space-y-1">
@@ -346,7 +357,7 @@ export default function AdoptionRequests() {
 
       {/* Detail Modal */}
       <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
-        <DialogContent className="bg-card border-border text-foreground max-w-2xl">
+        <DialogContent className="bg-card border-border text-foreground max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Detalles de la Solicitud</DialogTitle>
             <DialogDescription className="text-muted-foreground">
@@ -371,7 +382,12 @@ export default function AdoptionRequests() {
                       />
                       <div>
                         <p className="text-foreground font-medium text-lg">{selectedRequest.mascota_nombre}</p>
-                        {getStatusBadge(selectedRequest.estado)}
+                        {selectedRequest.mascota_detalles && (
+                          <p className="text-sm text-muted-foreground">
+                            {selectedRequest.mascota_detalles.especie} • {selectedRequest.mascota_detalles.raza}
+                            {selectedRequest.mascota_detalles.edad_anios && ` • ${selectedRequest.mascota_detalles.edad_anios} ${selectedRequest.mascota_detalles.edad_anios === 1 ? 'año' : 'años'}`}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </CardContent>
@@ -388,53 +404,109 @@ export default function AdoptionRequests() {
                     </div>
                     <div className="flex items-center space-x-2">
                       <Mail className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-foreground">{selectedRequest.adoptante_email}</span>
+                      <span className="text-foreground text-sm">{selectedRequest.adoptante_email}</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Phone className="w-4 h-4 text-muted-foreground" />
                       <span className="text-foreground">{selectedRequest.adoptante_telefono}</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <MapPin className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-foreground">{selectedRequest.adoptante_direccion}</span>
+                      <Calendar className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-foreground text-sm">{new Date(selectedRequest.fecha_solicitud).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
+                    </div>
+                    <div className="pt-2">
+                      {getStatusBadge(selectedRequest.estado)}
                     </div>
                   </CardContent>
                 </Card>
               </div>
 
-              {/* Detailed Information */}
+              {/* Detailed Information - Organized Sections */}
               <div className="space-y-4">
-                {selectedRequest.comentario && (
-                  <div>
-                    <h4 className="text-foreground font-medium mb-2">Comentario del solicitante</h4>
-                    <p className="text-foreground bg-muted p-3 rounded-lg">{selectedRequest.comentario}</p>
-                  </div>
-                )}
-                
-                {selectedRequest.mascota_detalles && (
-                  <div>
-                    <h4 className="text-foreground font-medium mb-2">Detalles de la mascota</h4>
-                    <div className="text-foreground bg-muted p-3 rounded-lg space-y-1">
-                      {selectedRequest.mascota_detalles.especie && (
-                        <p><span className="font-medium">Especie:</span> {selectedRequest.mascota_detalles.especie}</p>
+                {/* Información de Vivienda */}
+                <Card className="bg-muted border-border">
+                  <CardContent className="p-4">
+                    <div className="flex items-center space-x-2 mb-3">
+                      <Home className="w-5 h-5 text-primary" />
+                      <h4 className="text-foreground font-medium">Información de Vivienda</h4>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                      {selectedRequest.tipo_vivienda && (
+                        <div>
+                          <p className="text-muted-foreground">Tipo de Vivienda</p>
+                          <p className="text-foreground font-medium capitalize">{selectedRequest.tipo_vivienda}</p>
+                        </div>
                       )}
-                      {selectedRequest.mascota_detalles.raza && (
-                        <p><span className="font-medium">Raza:</span> {selectedRequest.mascota_detalles.raza}</p>
+                      {selectedRequest.tiene_patio && (
+                        <div>
+                          <p className="text-muted-foreground">¿Tiene patio?</p>
+                          <p className="text-foreground font-medium capitalize">{selectedRequest.tiene_patio}</p>
+                        </div>
                       )}
-                      {selectedRequest.mascota_detalles.edad_anios && (
-                        <p><span className="font-medium">Edad:</span> {selectedRequest.mascota_detalles.edad_anios}</p>
+                      {selectedRequest.permiso_propietario !== undefined && selectedRequest.tipo_vivienda !== 'casa' && (
+                        <div className="md:col-span-2">
+                          <p className="text-muted-foreground">¿Es propietario?</p>
+                          <p className="text-foreground font-medium">{selectedRequest.permiso_propietario ? 'Sí' : 'No'}</p>
+                        </div>
                       )}
                     </div>
-                  </div>
+                  </CardContent>
+                </Card>
+
+                {/* Experiencia con Mascotas */}
+                <Card className="bg-muted border-border">
+                  <CardContent className="p-4">
+                    <div className="flex items-center space-x-2 mb-3">
+                      <PawPrint className="w-5 h-5 text-primary" />
+                      <h4 className="text-foreground font-medium">Experiencia con Mascotas</h4>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                      {selectedRequest.experiencia_mascotas && (
+                        <div>
+                          <p className="text-muted-foreground">Experiencia previa</p>
+                          <p className="text-foreground font-medium capitalize">{selectedRequest.experiencia_mascotas}</p>
+                        </div>
+                      )}
+                      {selectedRequest.mascotas_actuales && (
+                        <div>
+                          <p className="text-muted-foreground">¿Tiene mascotas actualmente?</p>
+                          <p className="text-foreground font-medium capitalize">{selectedRequest.mascotas_actuales}</p>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Disponibilidad */}
+                <Card className="bg-muted border-border">
+                  <CardContent className="p-4">
+                    <div className="flex items-center space-x-2 mb-3">
+                      <Timer className="w-5 h-5 text-primary" />
+                      <h4 className="text-foreground font-medium">Disponibilidad</h4>
+                    </div>
+                    <div className="text-sm">
+                      {selectedRequest.tiempo_dedicacion && (
+                        <div>
+                          <p className="text-muted-foreground">Tiempo de dedicación</p>
+                          <p className="text-foreground font-medium">{selectedRequest.tiempo_dedicacion}</p>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Razón de Adopción */}
+                {selectedRequest.comentario && (
+                  <Card className="bg-muted border-border">
+                    <CardContent className="p-4">
+                      <div className="flex items-center space-x-2 mb-3">
+                        <FileText className="w-5 h-5 text-primary" />
+                        <h4 className="text-foreground font-medium">Razón de Adopción</h4>
+                      </div>
+                      <p className="text-foreground text-sm leading-relaxed">{selectedRequest.comentario}</p>
+                    </CardContent>
+                  </Card>
                 )}
-                
-                <div>
-                  <h4 className="text-foreground font-medium mb-2">Información de la solicitud</h4>
-                  <div className="text-foreground bg-muted p-3 rounded-lg space-y-1">
-                    <p><span className="font-medium">Tipo de solicitante:</span> {selectedRequest.adoptante_tipo || 'Usuario'}</p>
-                    <p><span className="font-medium">Fecha de solicitud:</span> {new Date(selectedRequest.fecha_solicitud).toLocaleString('es-ES')}</p>
-                  </div>
-                </div>
               </div>
 
               {/* Actions */}
