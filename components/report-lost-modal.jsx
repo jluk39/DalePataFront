@@ -91,6 +91,7 @@ export function ReportLostModal({ pet, open, onOpenChange, onSuccess }) {
         perdida_direccion: locationData.address,
         perdida_lat: locationData.lat,
         perdida_lon: locationData.lon,
+        perdida_fecha: date.toISOString(),
         descripcion: description || `${pet.name} se perdió el ${format(date, "PPP", { locale: es })}`
       }
 
@@ -100,12 +101,7 @@ export function ReportLostModal({ pet, open, onOpenChange, onSuccess }) {
       const result = await ApiService.reportPetAsLost(pet.id, reportData)
 
       // Mostrar mensaje de éxito
-      toast({
-        title: "✅ Mascota reportada como perdida",
-        description: result.geocoded 
-          ? "Tu mascota aparecerá en el mapa de perdidos con ubicación geocodificada"
-          : "Tu mascota aparecerá en la lista de perdidos"
-      })
+      alert(`✅ ${pet.name} ha sido reportada como perdida exitosamente.\n\nAhora aparecerá en el mapa y lista de mascotas perdidas.`)
 
       // Limpiar formulario
       setDate(null)
@@ -119,13 +115,12 @@ export function ReportLostModal({ pet, open, onOpenChange, onSuccess }) {
         onSuccess()
       }
 
+      // Recargar página para actualizar el estado de la mascota
+      window.location.reload()
+
     } catch (error) {
       console.error('Error al reportar mascota perdida:', error)
-      toast({
-        title: "Error",
-        description: error.message || 'No se pudo reportar la mascota como perdida',
-        variant: "destructive"
-      })
+      alert(`❌ Error al reportar a ${pet.name} como perdida:\n\n${error.message || 'No se pudo completar la operación'}`)
     } finally {
       setLoading(false)
     }
