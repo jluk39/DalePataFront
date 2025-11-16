@@ -12,6 +12,7 @@ import {
 import { Button } from "./ui/button.jsx"
 import { Label } from "./ui/label.jsx"
 import { Textarea } from "./ui/textarea.jsx"
+import { Checkbox } from "./ui/checkbox.jsx"
 import { Calendar } from "./ui/calendar.jsx"
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover.jsx"
 import { CalendarIcon, Loader2, AlertCircle } from "lucide-react"
@@ -31,6 +32,7 @@ export function ReportLostModal({ pet, open, onOpenChange, onSuccess }) {
   const [loading, setLoading] = useState(false)
   const [date, setDate] = useState()
   const [description, setDescription] = useState("")
+  const [acceptTerms, setAcceptTerms] = useState(false)
   const [locationData, setLocationData] = useState({
     address: '',
     lat: null,
@@ -73,6 +75,17 @@ export function ReportLostModal({ pet, open, onOpenChange, onSuccess }) {
         return
       }
 
+      // Validar aceptación de términos
+      if (!acceptTerms) {
+        toast({
+          title: "Consentimiento requerido",
+          description: "Debes aceptar que tus datos de contacto sean visibles",
+          variant: "destructive"
+        })
+        setLoading(false)
+        return
+      }
+
       // Preparar datos para enviar
       const reportData = {
         perdida_direccion: locationData.address,
@@ -97,6 +110,7 @@ export function ReportLostModal({ pet, open, onOpenChange, onSuccess }) {
       // Limpiar formulario
       setDate(null)
       setDescription("")
+      setAcceptTerms(false)
       setLocationData({ address: '', lat: null, lon: null })
 
       // Cerrar modal y notificar al padre
@@ -185,6 +199,26 @@ export function ReportLostModal({ pet, open, onOpenChange, onSuccess }) {
             />
           </div>
 
+          <div className="flex items-start space-x-2 p-4 border rounded-lg bg-muted/50">
+            <Checkbox 
+              id="terms" 
+              checked={acceptTerms}
+              onCheckedChange={setAcceptTerms}
+              required
+            />
+            <div className="grid gap-1.5 leading-none">
+              <label
+                htmlFor="terms"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+              >
+                Acepto que mis datos de contacto sean visibles *
+              </label>
+              <p className="text-sm text-muted-foreground">
+                Tu nombre, teléfono y email serán visibles para otros usuarios que puedan ayudar a encontrar a tu mascota
+              </p>
+            </div>
+          </div>
+
           <DialogFooter>
             <Button 
               type="button" 
@@ -194,7 +228,7 @@ export function ReportLostModal({ pet, open, onOpenChange, onSuccess }) {
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading || !acceptTerms}>
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

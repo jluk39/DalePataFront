@@ -6,6 +6,7 @@ import { Button } from "./ui/button.jsx"
 import { Input } from "./ui/input.jsx"
 import { Label } from "./ui/label.jsx"
 import { Textarea } from "./ui/textarea.jsx"
+import { Checkbox } from "./ui/checkbox.jsx"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select.jsx"
 import { Calendar } from "./ui/calendar.jsx"
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover.jsx"
@@ -25,6 +26,7 @@ export function ReportPetForm() {
   const [calendarOpen, setCalendarOpen] = useState(false)
   const [imageFile, setImageFile] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
+  const [acceptTerms, setAcceptTerms] = useState(false)
   const [locationData, setLocationData] = useState({
     address: '',
     lat: null,
@@ -130,6 +132,16 @@ export function ReportPetForm() {
         toast({
           title: "Imagen requerida",
           description: "Por favor, sube una foto de la mascota",
+          variant: "destructive"
+        })
+        setLoading(false)
+        return
+      }
+
+      if (!acceptTerms) {
+        toast({
+          title: "Consentimiento requerido",
+          description: "Debes aceptar que tus datos de contacto sean visibles",
           variant: "destructive"
         })
         setLoading(false)
@@ -377,6 +389,30 @@ export function ReportPetForm() {
         </CardContent>
       </Card>
 
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-start space-x-2 p-4 border rounded-lg bg-muted/50">
+            <Checkbox 
+              id="terms" 
+              checked={acceptTerms}
+              onCheckedChange={setAcceptTerms}
+              required
+            />
+            <div className="grid gap-1.5 leading-none">
+              <label
+                htmlFor="terms"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+              >
+                Acepto que mis datos de contacto sean visibles *
+              </label>
+              <p className="text-sm text-muted-foreground">
+                Tu nombre, teléfono y email serán visibles para otros usuarios que puedan haber visto a esta mascota
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="flex justify-end gap-4">
         <Button 
           type="button" 
@@ -386,14 +422,14 @@ export function ReportPetForm() {
         >
           Cancelar
         </Button>
-        <Button type="submit" size="lg" disabled={loading}>
+        <Button type="submit" size="lg" disabled={loading || !acceptTerms}>
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Enviando...
             </>
           ) : (
-            'Reportar Mascota Encontrada'
+            'Reportar Mascota'
           )}
         </Button>
       </div>
