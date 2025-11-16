@@ -1,7 +1,7 @@
 ﻿import { Card, CardContent } from "./ui/card.jsx"
 import { Badge } from "./ui/badge.jsx"
 import { Button } from "./ui/button.jsx"
-import { Heart, MapPin, Clock } from "lucide-react"
+import { MapPin, Clock } from "lucide-react"
 import Link from "next/link"
 
 
@@ -19,9 +19,6 @@ export function AdoptionCard({ pet }) {
             Urgente
           </Badge>
         )}
-        <Button variant="ghost" size="icon" className="absolute top-2 right-2 bg-white/80 hover:bg-white">
-          <Heart className="h-4 w-4" />
-        </Button>
       </div>
 
       <CardContent className="p-4">

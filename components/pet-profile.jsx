@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card.jsx"
 import { Badge } from "./ui/badge.jsx"
-import { MapPin, Calendar, Heart, Share2, Loader2 } from "lucide-react"
+import { MapPin, Calendar, Share2, Loader2 } from "lucide-react"
 import { Button } from "./ui/button.jsx"
 import { ApiService } from "../lib/api.js"
 
@@ -11,6 +11,18 @@ export function PetProfile({ petId }) {
   const [pet, setPet] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+
+  const handleShare = async () => {
+    const url = window.location.href
+    
+    try {
+      await navigator.clipboard.writeText(url)
+      alert('✅ Enlace copiado al portapapeles')
+    } catch (error) {
+      console.error('Error copying to clipboard:', error)
+      alert('❌ No se pudo copiar el enlace')
+    }
+  }
 
   useEffect(() => {
     const fetchPetDetails = async () => {
@@ -84,11 +96,8 @@ export function PetProfile({ petId }) {
               alt={pet.name}
               className="w-full h-80 object-cover rounded-t-lg"
             />
-            <div className="absolute top-4 right-4 flex gap-2">
-              <Button variant="secondary" size="icon">
-                <Heart className="h-4 w-4" />
-              </Button>
-              <Button variant="secondary" size="icon">
+            <div className="absolute top-4 right-4">
+              <Button variant="secondary" size="icon" onClick={handleShare} title="Compartir enlace">
                 <Share2 className="h-4 w-4" />
               </Button>
             </div>
