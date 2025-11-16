@@ -13,6 +13,7 @@ import EditPetModal from "../../../../components/admin/edit-pet-modal.jsx"
 import ViewPetModal from "../../../../components/admin/view-pet-modal.jsx"
 import { ApiService } from "../../../../lib/api.js"
 import { useAuth } from "../../../../components/backend-auth-provider.js"
+import { showSuccess, showError } from "../../../../lib/sweetalert.js"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -134,10 +135,10 @@ export default function PetManagement() {
       setShowDeleteDialog(false)
       setPetToDelete(null)
       
-      alert(`✅ Mascota "${petToDelete.nombre}" eliminada exitosamente`)
+      await showSuccess('¡Eliminada!', `Mascota "${petToDelete.nombre}" eliminada exitosamente`)
     } catch (error) {
       console.error('❌ Error eliminando mascota:', error)
-      alert(`Error al eliminar la mascota: ${error.message}`)
+      await showError('Error', `Error al eliminar la mascota: ${error.message}`)
     }
   }
 

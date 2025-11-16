@@ -6,6 +6,7 @@ import { Badge } from "./ui/badge.jsx"
 import { MapPin, Calendar, Share2, Loader2 } from "lucide-react"
 import { Button } from "./ui/button.jsx"
 import { ApiService } from "../lib/api.js"
+import { showSuccess, showError } from "../lib/sweetalert.js"
 
 export function PetProfile({ petId }) {
   const [pet, setPet] = useState(null)
@@ -17,10 +18,10 @@ export function PetProfile({ petId }) {
     
     try {
       await navigator.clipboard.writeText(url)
-      alert('✅ Enlace copiado al portapapeles')
+      showSuccess('¡Copiado!', 'Enlace copiado al portapapeles')
     } catch (error) {
       console.error('Error copying to clipboard:', error)
-      alert('❌ No se pudo copiar el enlace')
+      showError('Error', 'No se pudo copiar el enlace')
     }
   }
 

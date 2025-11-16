@@ -22,6 +22,7 @@ import { MapboxGeocoderInput } from "./mapbox-geocoder.jsx"
 import { ApiService } from "../lib/api.js"
 import { useToast } from "../hooks/use-toast"
 import { Alert, AlertDescription } from "./ui/alert.jsx"
+import { showSuccess, showError, showWarning } from "../lib/sweetalert.js"
 
 /**
  * Modal para reportar una mascota propia como perdida
@@ -55,33 +56,30 @@ export function ReportLostModal({ pet, open, onOpenChange, onSuccess }) {
     try {
       // Validar ubicación
       if (!locationData.address) {
-        toast({
-          title: "Ubicación requerida",
-          description: "Por favor, selecciona dónde se perdió tu mascota",
-          variant: "destructive"
-        })
+        showWarning(
+          "Ubicación requerida",
+          "Por favor, selecciona dónde se perdió tu mascota"
+        )
         setLoading(false)
         return
       }
 
       // Validar fecha
       if (!date) {
-        toast({
-          title: "Fecha requerida",
-          description: "Por favor, selecciona cuándo se perdió",
-          variant: "destructive"
-        })
+        showWarning(
+          "Fecha requerida",
+          "Por favor, selecciona cuándo se perdió"
+        )
         setLoading(false)
         return
       }
 
       // Validar aceptación de términos
       if (!acceptTerms) {
-        toast({
-          title: "Consentimiento requerido",
-          description: "Debes aceptar que tus datos de contacto sean visibles",
-          variant: "destructive"
-        })
+        showWarning(
+          "Consentimiento requerido",
+          "Debes aceptar que tus datos de contacto sean visibles"
+        )
         setLoading(false)
         return
       }
@@ -101,7 +99,10 @@ export function ReportLostModal({ pet, open, onOpenChange, onSuccess }) {
       const result = await ApiService.reportPetAsLost(pet.id, reportData)
 
       // Mostrar mensaje de éxito
-      alert(`✅ ${pet.name} ha sido reportada como perdida exitosamente.\n\nAhora aparecerá en el mapa y lista de mascotas perdidas.`)
+      await showSuccess(
+        "¡Mascota reportada!",
+        `${pet.name} ha sido reportada como perdida exitosamente. Ahora aparecerá en el mapa y lista de mascotas perdidas.`
+      )
 
       // Limpiar formulario
       setDate(null)
@@ -120,7 +121,10 @@ export function ReportLostModal({ pet, open, onOpenChange, onSuccess }) {
 
     } catch (error) {
       console.error('Error al reportar mascota perdida:', error)
-      alert(`❌ Error al reportar a ${pet.name} como perdida:\n\n${error.message || 'No se pudo completar la operación'}`)
+      showError(
+        "Error al reportar",
+        error.message || 'No se pudo completar la operación'
+      )
     } finally {
       setLoading(false)
     }

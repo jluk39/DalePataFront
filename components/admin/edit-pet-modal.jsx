@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select.jsx"
 import { Upload, X } from "lucide-react"
 import { ApiService } from "../../lib/api.js"
+import { showSuccess, showError } from "../../lib/sweetalert.js"
 
 export default function EditPetModal({ open, onOpenChange, pet, onPetUpdated }) {
   const [formData, setFormData] = useState({
@@ -161,7 +162,7 @@ export default function EditPetModal({ open, onOpenChange, pet, onPetUpdated }) 
       onOpenChange(false)
 
       // Mostrar éxito
-      alert(`✅ Mascota "${result.nombre}" actualizada exitosamente`)
+      await showSuccess('¡Actualizado!', `Mascota "${result.nombre}" actualizada exitosamente`)
 
     } catch (error) {
       console.error("Error updating pet:", error)

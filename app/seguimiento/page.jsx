@@ -8,6 +8,7 @@ import { Badge } from "../../components/ui/badge.jsx"
 import { Button } from "../../components/ui/button.jsx"
 import { Input } from "../../components/ui/input.jsx"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select.jsx"
+import { showSuccess, showError } from "../../lib/sweetalert.js"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -81,10 +82,10 @@ export default function SeguimientoPage() {
 
       setShowCancelDialog(false)
       setRequestToCancel(null)
-      alert("✅ Solicitud cancelada exitosamente")
+      await showSuccess('¡Cancelada!', 'Solicitud cancelada exitosamente')
     } catch (error) {
       console.error("Error canceling request:", error)
-      alert(`❌ Error al cancelar la solicitud: ${error.message}`)
+      await showError('Error', `Error al cancelar la solicitud: ${error.message}`)
     }
   }
 

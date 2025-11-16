@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select.jsx"
 import { Upload, X } from "lucide-react"
 import { ApiService } from "../../lib/api.js"
+import { showSuccess, showError } from "../../lib/sweetalert.js"
 
 export default function UserAddPetModal({ open, onOpenChange, onSubmit }) {
   const [formData, setFormData] = useState({
@@ -156,7 +157,7 @@ export default function UserAddPetModal({ open, onOpenChange, onSubmit }) {
       onOpenChange(false)
 
       // Mostrar mensaje de éxito
-      alert(`✅ Mascota "${resultado.nombre}" registrada exitosamente`)
+      await showSuccess('¡Registrada!', `Mascota "${resultado.nombre}" registrada exitosamente`)
       
       // Recargar la página para mostrar la nueva mascota
       window.location.reload()

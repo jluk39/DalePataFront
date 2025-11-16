@@ -3,6 +3,7 @@
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "../backend-auth-provider.js"
+import { showWarning } from "../../lib/sweetalert.js"
 
 // Helper function para mensajes personalizados
 function getAccessDeniedMessage(userType, requiredRole) {
@@ -50,11 +51,14 @@ export default function AdminProtectedRoute({ children, requiredRole = "refugio"
     if (userType !== requiredRole) {
       // Mostrar mensaje más específico según el tipo de usuario
       const message = getAccessDeniedMessage(userType, requiredRole)
-      alert(message)
       
-      // Redirigir a la página apropiada según el tipo de usuario
-      const redirectPath = getRedirectPath(userType)
-      router.push(redirectPath)
+      // Mostrar warning y luego redirigir
+      showWarning('Acceso denegado', message).then(() => {
+        // Redirigir a la página apropiada según el tipo de usuario
+        const redirectPath = getRedirectPath(userType)
+        router.push(redirectPath)
+      })
+      
       return
     }
   }, [user, loading, router, requiredRole])

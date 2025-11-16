@@ -17,6 +17,7 @@ import {
 } from "../../../../components/ui/dialog.jsx"
 import { ApiService } from "../../../../lib/api.js"
 import { useAuth } from "../../../../components/backend-auth-provider.js"
+import { showSuccess, showError, showConfirm } from "../../../../lib/sweetalert.js"
 
 export default function AdoptionRequests() {
   const { user } = useAuth()
@@ -83,12 +84,14 @@ export default function AdoptionRequests() {
   }
 
   const handleApprove = async (requestId) => {
-    const confirmacion = window.confirm(
-      '¿Estás seguro de que deseas aprobar esta solicitud de adopción?\n\n' +
-      'Al aprobar, la mascota será asignada al adoptante y las demás solicitudes pendientes para esta mascota serán rechazadas automáticamente.'
+    const confirmed = await showConfirm(
+      '¿Aprobar solicitud?',
+      'Al aprobar, la mascota será asignada al adoptante y las demás solicitudes pendientes para esta mascota serán rechazadas automáticamente.',
+      'Sí, aprobar',
+      'Cancelar'
     )
     
-    if (!confirmacion) return
+    if (!confirmed) return
     
     try {
       const result = await ApiService.updateAdoptionRequestStatus(requestId, 'aprobada', 'Solicitud aprobada por el refugio')
@@ -102,23 +105,25 @@ export default function AdoptionRequests() {
       
       // Mensaje específico si la mascota fue adoptada
       if (result.data?.mascota_adoptada) {
-        alert('¡Solicitud aprobada exitosamente! La mascota ha sido adoptada y asignada al usuario.')
+        await showSuccess('¡Aprobada!', 'La mascota ha sido adoptada y asignada al usuario')
       } else {
-        alert('Solicitud aprobada exitosamente')
+        await showSuccess('¡Aprobada!', 'Solicitud aprobada exitosamente')
       }
     } catch (error) {
       console.error('Error approving request:', error)
-      alert('Error al aprobar la solicitud: ' + error.message)
+      await showError('Error', `Error al aprobar la solicitud: ${error.message}`)
     }
   }
 
   const handleReject = async (requestId) => {
-    const confirmacion = window.confirm(
-      '¿Estás seguro de que deseas rechazar esta solicitud de adopción?\n\n' +
-      'Esta acción no se puede deshacer.'
+    const confirmed = await showConfirm(
+      '¿Rechazar solicitud?',
+      'Esta acción no se puede deshacer.',
+      'Sí, rechazar',
+      'Cancelar'
     )
     
-    if (!confirmacion) return
+    if (!confirmed) return
     
     try {
       await ApiService.updateAdoptionRequestStatus(requestId, 'rechazada', 'Solicitud rechazada por el refugio')
@@ -130,10 +135,10 @@ export default function AdoptionRequests() {
           : req
       ))
       
-      alert('Solicitud rechazada exitosamente')
+      await showSuccess('Rechazada', 'Solicitud rechazada exitosamente')
     } catch (error) {
       console.error('Error rejecting request:', error)
-      alert('Error al rechazar la solicitud: ' + error.message)
+      await showError('Error', `Error al rechazar la solicitud: ${error.message}`)
     }
   }
 

@@ -10,6 +10,7 @@ import { ApiService } from "../lib/api.js"
 import EditPetModal from "./admin/edit-pet-modal.jsx"
 import UserEditPetModal from "./user/user-edit-pet-modal.jsx"
 import { ReportLostModal } from "./report-lost-modal.jsx"
+import { showSuccess, showError, showConfirm } from "../lib/sweetalert.js"
 
 export function PetCard({ pet, showFavoriteButton = true, showOwnerActions = false, onPetDeleted, onPetUpdated, useUserModals = false }) {
   const { user } = useAuth()
@@ -33,8 +34,11 @@ export function PetCard({ pet, showFavoriteButton = true, showOwnerActions = fal
   const handleMarkAsFoundClick = async (e) => {
     e.stopPropagation()
     
-    const confirmed = window.confirm(
-      `¿Confirmas que ${pet.name} ha sido encontrada?\n\nEsto actualizará el estado de la mascota y notificará que ya no está perdida.`
+    const confirmed = await showConfirm(
+      '¿Confirmar que fue encontrada?',
+      `¿Confirmas que ${pet.name} ha sido encontrada? Esto actualizará el estado de la mascota y notificará que ya no está perdida.`,
+      'Sí, marcar como encontrada',
+      'Cancelar'
     )
     
     if (!confirmed) return
@@ -44,14 +48,14 @@ export function PetCard({ pet, showFavoriteButton = true, showOwnerActions = fal
     try {
       await ApiService.markPetAsFound(pet.id, 'Mascota encontrada por el dueño')
       
-      alert(`✅ ¡Qué buena noticia! ${pet.name} ha sido marcada como encontrada.`)
+      await showSuccess('¡Qué buena noticia!', `${pet.name} ha sido marcada como encontrada.`)
       
       // Recargar página para actualizar el estado
       window.location.reload()
       
     } catch (error) {
       console.error('Error marking pet as found:', error)
-      alert(`❌ Error al marcar como encontrada: ${error.message}`)
+      showError('Error al marcar como encontrada', error.message)
     } finally {
       setMarkingAsFound(false)
     }
@@ -60,7 +64,12 @@ export function PetCard({ pet, showFavoriteButton = true, showOwnerActions = fal
   const handleDeleteClick = async (e) => {
     e.stopPropagation()
     
-    const confirmed = window.confirm(`¿Estás seguro de que quieres eliminar a ${pet.name}? Esta acción no se puede deshacer.`)
+    const confirmed = await showConfirm(
+      '¿Eliminar mascota?',
+      `¿Estás seguro de que quieres eliminar a ${pet.name}? Esta acción no se puede deshacer.`,
+      'Sí, eliminar',
+      'Cancelar'
+    )
     
     if (!confirmed) return
     
@@ -74,14 +83,14 @@ export function PetCard({ pet, showFavoriteButton = true, showOwnerActions = fal
         onPetDeleted(pet.id)
       }
       
-      alert(`✅ ${pet.name} ha sido eliminado exitosamente`)
+      await showSuccess('Eliminado', `${pet.name} ha sido eliminado exitosamente`)
       
       // Recargar página para mostrar cambios
       window.location.reload()
       
     } catch (error) {
       console.error('Error deleting pet:', error)
-      alert(`❌ Error al eliminar a ${pet.name}: ${error.message}`)
+      showError('Error al eliminar', error.message)
     } finally {
       setDeleting(false)
     }

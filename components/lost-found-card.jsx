@@ -7,6 +7,7 @@ import { Button } from "./ui/button.jsx"
 import { MapPin, Calendar, Phone, Mail, AlertTriangle, Gift, MessageCircle, Trash2 } from "lucide-react"
 import { useAuth } from "./backend-auth-provider.js"
 import { ApiService } from "../lib/api.js"
+import { showSuccess, showError, showConfirm } from "../lib/sweetalert.js"
 
 export function LostFoundCard({ pet }) {
   const { user } = useAuth()
@@ -33,8 +34,11 @@ export function LostFoundCard({ pet }) {
   const handleDeleteReport = async (e) => {
     e.stopPropagation()
     
-    const confirmed = window.confirm(
-      `¿Estás seguro de que quieres eliminar el reporte de ${pet.name}?\n\nEsta acción no se puede deshacer.`
+    const confirmed = await showConfirm(
+      '¿Eliminar reporte?',
+      `¿Estás seguro de que quieres eliminar el reporte de ${pet.name}? Esta acción no se puede deshacer.`,
+      'Sí, eliminar',
+      'Cancelar'
     )
     
     if (!confirmed) return
@@ -44,14 +48,14 @@ export function LostFoundCard({ pet }) {
     try {
       await ApiService.deleteLostPetReport(pet.id)
       
-      alert(`✅ El reporte de ${pet.name} ha sido eliminado exitosamente.`)
+      await showSuccess('Reporte eliminado', `El reporte de ${pet.name} ha sido eliminado exitosamente.`)
       
       // Recargar página para actualizar la lista
       window.location.reload()
       
     } catch (error) {
       console.error('Error deleting report:', error)
-      alert(`❌ Error al eliminar el reporte: ${error.message}`)
+      showError('Error al eliminar el reporte', error.message)
     } finally {
       setDeleting(false)
     }

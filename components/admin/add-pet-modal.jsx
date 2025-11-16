@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select.jsx"
 import { Upload, X } from "lucide-react"
 import { ApiService } from "../../lib/api.js"
+import { showSuccess, showError } from "../../lib/sweetalert.js"
 
 export default function AddPetModal({ open, onOpenChange, onSubmit }) {
   const [formData, setFormData] = useState({
@@ -138,7 +139,7 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
       const resultado = await ApiService.createPet(formDataToSend)
 
       // Mostrar mensaje de éxito
-      alert(`✅ Mascota "${resultado.nombre}" registrada exitosamente`)
+      await showSuccess('¡Registrada!', `Mascota "${resultado.nombre}" registrada exitosamente`)
 
       // Reset form
       setFormData({
