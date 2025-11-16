@@ -1,7 +1,7 @@
 ﻿import { Card, CardContent } from "./ui/card.jsx"
 import { Badge } from "./ui/badge.jsx"
 import { Button } from "./ui/button.jsx"
-import { MapPin, Calendar, Phone, Mail, AlertTriangle, Gift } from "lucide-react"
+import { MapPin, Calendar, Phone, Mail, AlertTriangle, Gift, MessageCircle } from "lucide-react"
 
 
 
@@ -71,16 +71,50 @@ export function LostFoundCard({ pet }) {
         )}
 
         <div className="space-y-2">
-          <p className="text-sm font-medium">Contacto</p>
+          <p className="text-sm font-medium">Contacto: {pet.contactName}</p>
           <div className="flex gap-2">
-            <Button size="sm" variant="outline" className="flex-1 bg-transparent">
-              <Phone className="h-3 w-3 mr-1" />
-              Llamar
-            </Button>
-            <Button size="sm" variant="outline" className="flex-1 bg-transparent">
-              <Mail className="h-3 w-3 mr-1" />
-              Email
-            </Button>
+            {pet.contactPhone && pet.contactPhone !== 'No disponible' ? (
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => window.open(`https://wa.me/${pet.contactPhone.replace(/\D/g, '')}`, '_blank')}
+              >
+                <MessageCircle className="h-3 w-3 mr-1" />
+                WhatsApp
+              </Button>
+            ) : (
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="flex-1 opacity-50" 
+                disabled
+              >
+                <MessageCircle className="h-3 w-3 mr-1" />
+                Sin teléfono
+              </Button>
+            )}
+            {pet.contactEmail && pet.contactEmail !== 'No disponible' ? (
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => window.open(`mailto:${pet.contactEmail}`, '_blank')}
+              >
+                <Mail className="h-3 w-3 mr-1" />
+                Email
+              </Button>
+            ) : (
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="flex-1 opacity-50" 
+                disabled
+              >
+                <Mail className="h-3 w-3 mr-1" />
+                Sin email
+              </Button>
+            )}
           </div>
         </div>
       </CardContent>

@@ -21,26 +21,31 @@ export function LostPetsGrid() {
       console.log('✅ Mascotas perdidas cargadas:', data)
       
       // Transformar datos para el componente LostFoundCard
-      const transformedData = data.map(pet => ({
-        id: pet.id.toString(),
-        name: pet.nombre || pet.name,
-        type: pet.especie || pet.species,
-        breed: pet.raza || pet.breed || 'Raza no especificada',
-        age: pet.edad || pet.age || 'Edad desconocida',
-        gender: pet.genero || pet.sexo || pet.gender || 'No especificado',
-        color: pet.color || 'Color no especificado',
-        size: pet.tamaño || 'Tamaño no especificado',
-        description: pet.descripcion || pet.description || 'Sin descripción',
-        image: pet.imagen || pet.image || '/placeholder.jpg',
-        location: pet.perdida_direccion || pet.location,
-        lastSeen: pet.perdida_fecha || pet.lostDate,
-        contactName: pet.reportado_por?.nombre || pet.duenio?.nombre || 'No disponible',
-        contactPhone: pet.reportado_por?.telefono || pet.duenio?.telefono || 'No disponible',
-        contactEmail: pet.reportado_por?.email || 'No disponible',
-        status: 'lost',
-        lat: pet.perdida_lat || pet.lat,
-        lon: pet.perdida_lon || pet.lon
-      }))
+      const transformedData = data.map(pet => {
+        // Determinar contacto (prioridad: reportado_por > duenio)
+        const contacto = pet.reportado_por || pet.duenio || {}
+        
+        return {
+          id: pet.id.toString(),
+          name: pet.nombre || pet.name,
+          type: pet.especie || pet.species,
+          breed: pet.raza || pet.breed || 'Raza no especificada',
+          age: pet.edad || pet.age || 'Edad desconocida',
+          gender: pet.genero || pet.sexo || pet.gender || 'No especificado',
+          color: pet.color || 'Color no especificado',
+          size: pet.tamaño || 'Tamaño no especificado',
+          description: pet.descripcion || pet.description || 'Sin descripción',
+          image: pet.imagen || pet.image || '/placeholder.jpg',
+          location: pet.perdida_direccion || pet.location,
+          lastSeen: pet.perdida_fecha || pet.lostDate,
+          contactName: contacto.nombre || 'No disponible',
+          contactPhone: contacto.telefono || 'No disponible',
+          contactEmail: contacto.email || 'No disponible',
+          status: 'lost',
+          lat: pet.perdida_lat || pet.lat,
+          lon: pet.perdida_lon || pet.lon
+        }
+      })
       
       setPets(transformedData)
     } catch (error) {
