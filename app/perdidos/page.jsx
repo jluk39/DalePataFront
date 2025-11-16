@@ -8,8 +8,13 @@ import { MapaPerdidos } from "../../components/mapa-perdidos.jsx"
 import UserProtectedRoute from "../../components/user/user-protected-route.jsx"
 import { ApiService } from "../../lib/api.js"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs.jsx"
+import { useAuth } from "../../components/backend-auth-provider.js"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card.jsx"
+import { Button } from "../../components/ui/button.jsx"
+import Link from "next/link"
 
 export default function PerdidosPage() {
+  const { user, loading: authLoading } = useAuth()
   const [lostPets, setLostPets] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -51,6 +56,35 @@ export default function PerdidosPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen bg-background items-center justify-center">
+        <div className="text-center">
+          <p className="text-muted-foreground">Cargando...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div className="flex min-h-screen bg-background">
+        <Sidebar />
+        <div className="flex-1 flex flex-col">
+          <Header />
+          <main className="flex-1 p-6 flex items-center justify-center">
+            <div className="text-center max-w-md">
+              <p className="text-muted-foreground mb-4">Debes iniciar sesión para ver las mascotas perdidas</p>
+              <Button asChild>
+                <Link href="/auth/login">Iniciar Sesión</Link>
+              </Button>
+            </div>
+          </main>
+        </div>
+      </div>
+    )
   }
 
   return (

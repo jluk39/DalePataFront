@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Sidebar } from "../../components/sidebar.js"
 import { Header } from "../../components/header.js"
-import { Card, CardContent } from "../../components/ui/card.jsx"
+import { Card, CardContent, CardHeader, CardDescription, CardTitle } from "../../components/ui/card.jsx"
 import { Badge } from "../../components/ui/badge.jsx"
 import { Button } from "../../components/ui/button.jsx"
 import { Input } from "../../components/ui/input.jsx"
@@ -23,9 +23,10 @@ import AdoptionRequestDetailsModal from "../../components/adoption-request-detai
 import UserProtectedRoute from "../../components/user/user-protected-route.jsx"
 import { useAuth } from "../../components/backend-auth-provider.js"
 import { ApiService } from "../../lib/api.js"
+import Link from "next/link"
 
 export default function SeguimientoPage() {
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const [requests, setRequests] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
@@ -38,8 +39,10 @@ export default function SeguimientoPage() {
   useEffect(() => {
     if (user) {
       fetchRequests()
+    } else if (!authLoading) {
+      setLoading(false)
     }
-  }, [user])
+  }, [user, authLoading])
 
   const fetchRequests = async () => {
     try {
@@ -139,7 +142,7 @@ export default function SeguimientoPage() {
     rechazadas: requests.filter(r => r.estado === "rechazada").length,
   }
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <UserProtectedRoute>
         <div className="flex h-screen bg-background">
@@ -155,6 +158,25 @@ export default function SeguimientoPage() {
           </div>
         </div>
       </UserProtectedRoute>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div className="flex h-screen bg-background">
+        <Sidebar />
+        <div className="flex-1 flex flex-col">
+          <Header />
+          <main className="flex-1 p-6 flex items-center justify-center">
+            <div className="text-center max-w-md">
+              <p className="text-muted-foreground mb-4">Debes iniciar sesión para ver el estado de tus solicitudes</p>
+              <Button asChild>
+                <Link href="/auth/login">Iniciar Sesión</Link>
+              </Button>
+            </div>
+          </main>
+        </div>
+      </div>
     )
   }
 
