@@ -101,11 +101,15 @@ export function MapaPerdidos({ mascotas = [] }) {
       const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
         <div style="padding: 10px; min-width: 200px;">
           <h3 style="font-weight: bold; margin-bottom: 8px; font-size: 16px;">${mascota.name}</h3>
-          <p style="margin: 4px 0; font-size: 14px;"><strong>Tipo:</strong> ${mascota.type || 'No especificado'}</p>
+          <p style="margin: 4px 0; font-size: 14px;"><strong>Tipo:</strong> ${mascota.species || mascota.type || 'No especificado'}</p>
           <p style="margin: 4px 0; font-size: 14px;"><strong>Raza:</strong> ${mascota.breed || 'No especificada'}</p>
           <p style="margin: 4px 0; font-size: 14px;"><strong>Ubicación:</strong> ${mascota.location}</p>
           ${mascota.description ? `<p style="margin: 8px 0 4px 0; font-size: 13px; color: #666;">${mascota.description.substring(0, 100)}${mascota.description.length > 100 ? '...' : ''}</p>` : ''}
-          <p style="margin-top: 8px; font-size: 13px;"><strong>Contacto:</strong> ${mascota.contactPhone || 'No disponible'}</p>
+          <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee;">
+            <p style="margin: 4px 0; font-size: 13px;"><strong>Contacto:</strong> ${mascota.contactName || 'No disponible'}</p>
+            ${mascota.contactPhone && mascota.contactPhone !== 'No disponible' ? `<p style="margin: 4px 0; font-size: 13px;"><strong>Teléfono:</strong> ${mascota.contactPhone}</p>` : ''}
+            ${mascota.contactEmail && mascota.contactEmail !== 'No disponible' ? `<p style="margin: 4px 0; font-size: 13px;"><strong>Email:</strong> ${mascota.contactEmail}</p>` : ''}
+          </div>
         </div>
       `)
 

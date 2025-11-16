@@ -169,6 +169,9 @@ export function ReportPetForm() {
       if (locationData.lat) formDataToSend.append('perdida_lat', locationData.lat.toString())
       if (locationData.lon) formDataToSend.append('perdida_lon', locationData.lon.toString())
       
+      // Agregar la fecha seleccionada
+      if (date) formDataToSend.append('perdida_fecha', date.toISOString())
+      
       // Agregar imagen (obligatoria) - el backend espera el campo "imagen"
       formDataToSend.append('imagen', imageFile)
 

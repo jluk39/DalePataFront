@@ -21,7 +21,29 @@ export default function PerdidosPage() {
     try {
       setLoading(true)
       const data = await ApiService.fetchLostPets()
-      setLostPets(data)
+      
+      // Transformar datos para incluir información de contacto
+      const transformedData = data.map(pet => {
+        // Determinar contacto (prioridad: reportado_por > duenio)
+        const contacto = pet.reportado_por || pet.duenio || {}
+        
+        return {
+          ...pet,
+          name: pet.nombre || pet.name,
+          species: pet.especie || pet.species,
+          breed: pet.raza || pet.breed,
+          description: pet.descripcion || pet.description,
+          image: pet.imagen || pet.image || '/placeholder.jpg',
+          location: pet.perdida_direccion || pet.location,
+          lat: pet.perdida_lat || pet.lat,
+          lon: pet.perdida_lon || pet.lon,
+          contactName: contacto.nombre || 'No disponible',
+          contactPhone: contacto.telefono || 'No disponible',
+          contactEmail: contacto.email || 'No disponible'
+        }
+      })
+      
+      setLostPets(transformedData)
     } catch (error) {
       console.error('Error al cargar mascotas perdidas:', error)
     } finally {
