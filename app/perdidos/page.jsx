@@ -39,7 +39,9 @@ export default function PerdidosPage() {
           lon: pet.perdida_lon || pet.lon,
           contactName: contacto.nombre || 'No disponible',
           contactPhone: contacto.telefono || 'No disponible',
-          contactEmail: contacto.email || 'No disponible'
+          contactEmail: contacto.email || 'No disponible',
+          reportadoPorId: pet.reportado_por?.id || null,
+          duenioId: pet.duenio?.id || null
         }
       })
       

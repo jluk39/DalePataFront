@@ -43,7 +43,9 @@ export function LostPetsGrid() {
           contactEmail: contacto.email || 'No disponible',
           status: 'lost',
           lat: pet.perdida_lat || pet.lat,
-          lon: pet.perdida_lon || pet.lon
+          lon: pet.perdida_lon || pet.lon,
+          reportadoPorId: pet.reportado_por?.id || null,
+          duenioId: pet.duenio?.id || null
         }
       })
       
