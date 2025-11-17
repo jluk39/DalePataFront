@@ -1,5 +1,5 @@
 ﻿import { Sidebar } from "../components/sidebar.js"
-import { Header } from "../components/header-debug.js"
+import { Header } from "../components/header.js"
 import { HeroSection } from "../components/hero-section.jsx"
 import { MyPetsGrid } from "../components/my-pets-grid.jsx"
 import UserProtectedRoute from "../components/user/user-protected-route.jsx"
