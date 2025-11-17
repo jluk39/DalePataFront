@@ -126,7 +126,7 @@ export default function AddPetModal({ open, onOpenChange, onSubmit }) {
         formDataToSend.append('descripcion', formData.descripcion.trim())
       }
       if (formData.tamaño && formData.tamaño.trim()) {
-        formDataToSend.append('tamaño', formData.tamaño.trim())
+        formDataToSend.append('tamano', formData.tamaño.trim())
       }
       formDataToSend.append('en_adopcion', formData.en_adopcion ? 'true' : 'false')
 

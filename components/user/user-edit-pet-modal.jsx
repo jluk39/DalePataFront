@@ -123,7 +123,7 @@ export default function UserEditPetModal({ open, onOpenChange, pet, onPetUpdated
         if (formData.peso) dataToSend.append('peso', formData.peso)
         if (formData.color) dataToSend.append('color', formData.color.trim())
         if (formData.descripcion) dataToSend.append('descripcion', formData.descripcion.trim())
-        if (formData.tamaño) dataToSend.append('tamaño', formData.tamaño.trim())
+        if (formData.tamaño) dataToSend.append('tamano', formData.tamaño)
         
         dataToSend.append('imagen', imageFile)
       } else {
@@ -137,7 +137,7 @@ export default function UserEditPetModal({ open, onOpenChange, pet, onPetUpdated
           peso: formData.peso ? parseFloat(formData.peso) : null,
           color: formData.color?.trim() || null,
           descripcion: formData.descripcion?.trim() || null,
-          tamaño: formData.tamaño?.trim() || null,
+          tamano: formData.tamaño || null,
         }
       }
 

@@ -122,8 +122,9 @@ export default function UserAddPetModal({ open, onOpenChange, onSubmit }) {
       if (formData.descripcion && formData.descripcion.trim()) {
         formDataToSend.append('descripcion', formData.descripcion.trim())
       }
-      if (formData.tamaño && formData.tamaño.trim()) {
-        formDataToSend.append('tamaño', formData.tamaño.trim())
+      if (formData.tamaño) {
+        console.log('📏 Enviando tamaño:', formData.tamaño)
+        formDataToSend.append('tamano', formData.tamaño)
       }
 
       // Agregar imagen si existe
