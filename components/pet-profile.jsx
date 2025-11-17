@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card.jsx"
 import { Badge } from "./ui/badge.jsx"
-import { MapPin, Calendar, Share2, Loader2 } from "lucide-react"
+import { MapPin, Calendar, Share2, Loader2, MessageCircle } from "lucide-react"
 import { Button } from "./ui/button.jsx"
 import { ApiService } from "../lib/api.js"
 import { showSuccess, showError } from "../lib/sweetalert.js"
@@ -23,6 +23,24 @@ export function PetProfile({ petId }) {
       console.error('Error copying to clipboard:', error)
       showError('Error', 'No se pudo copiar el enlace')
     }
+  }
+
+  const handleWhatsAppContact = () => {
+    if (!pet.phone) {
+      showError('Error', 'No hay teléfono disponible para contactar')
+      return
+    }
+    
+    // Limpiar el número de teléfono (quitar espacios, guiones, paréntesis)
+    const cleanPhone = pet.phone.replace(/\D/g, '')
+    
+    // Crear mensaje predeterminado
+    const message = encodeURIComponent(
+      `Hola! Estoy interesado/a en adoptar a ${pet.name}. Me gustaría obtener más información.`
+    )
+    
+    // Abrir WhatsApp con el número y mensaje
+    window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank')
   }
 
   useEffect(() => {
@@ -114,7 +132,7 @@ export function PetProfile({ petId }) {
                 </div>
                 <div className="flex items-center text-muted-foreground">
                   <Calendar className="h-4 w-4 mr-1" />
-                  Rescatado el {pet.rescueDate}
+                  Registrado el {pet.rescueDate}
                 </div>
               </div>
               <Badge variant="secondary" className="text-sm">
@@ -147,12 +165,12 @@ export function PetProfile({ petId }) {
               <p className="font-medium">{pet.gender}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Castrado</p>
-              <p className="font-medium">{pet.sterilized ? 'Sí' : 'No especificado'}</p>
-            </div>
-            <div>
               <p className="text-sm text-muted-foreground">Tamaño</p>
               <p className="font-medium">{pet.size}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Peso</p>
+              <p className="font-medium">{pet.weight}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Color</p>
@@ -223,6 +241,16 @@ export function PetProfile({ petId }) {
                 <p className="text-sm text-muted-foreground">Email</p>
                 <p className="font-medium">{pet.email}</p>
               </div>
+            )}
+            {pet.phone && (
+              <Button 
+                onClick={handleWhatsAppContact}
+                className="w-full mt-4"
+                size="lg"
+              >
+                <MessageCircle className="mr-2 h-5 w-5" />
+                Contactar por WhatsApp
+              </Button>
             )}
           </div>
         </CardContent>
