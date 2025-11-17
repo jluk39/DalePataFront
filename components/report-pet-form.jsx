@@ -17,6 +17,7 @@ import { MapboxGeocoderInput } from "./mapbox-geocoder.jsx"
 import { ApiService } from "../lib/api.js"
 import { useToast } from "../hooks/use-toast"
 import { useRouter } from "next/navigation"
+import { showSuccess, showError } from "../lib/sweetalert.js"
 
 export function ReportPetForm() {
   const { toast } = useToast()
@@ -59,22 +60,14 @@ export function ReportPetForm() {
     // Validar tipo de archivo
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
     if (!validTypes.includes(file.type)) {
-      toast({
-        title: "Formato inválido",
-        description: "Solo se permiten archivos JPG, PNG o WEBP",
-        variant: "destructive"
-      })
+      showError('Formato inválido', 'Solo se permiten archivos JPG, PNG o WEBP.')
       return
     }
 
     // Validar tamaño (máx 5MB)
     const maxSize = 5 * 1024 * 1024 // 5MB
     if (file.size > maxSize) {
-      toast({
-        title: "Archivo muy grande",
-        description: "La imagen no debe superar los 5MB",
-        variant: "destructive"
-      })
+      showError('Archivo muy grande', 'La imagen no debe superar los 5MB.')
       return
     }
 
@@ -99,51 +92,34 @@ export function ReportPetForm() {
 
     try {
       if (!locationData.address) {
-        toast({
-          title: "Ubicación requerida",
-          description: "Por favor, selecciona una ubicación",
-          variant: "destructive"
-        })
+        await showError('Ubicación requerida', 'Por favor, selecciona una ubicación donde viste la mascota.')
         setLoading(false)
         return
       }
 
       if (!formData.petName || !formData.petType) {
-        toast({
-          title: "Campos requeridos",
-          description: "Por favor, completa nombre y tipo de animal",
-          variant: "destructive"
-        })
+        await showError('Campos requeridos', 'Por favor, completa el nombre y tipo de animal.')
         setLoading(false)
         return
       }
 
       if (!date) {
-        toast({
-          title: "Fecha requerida",
-          description: "Por favor, selecciona la fecha del avistamiento",
-          variant: "destructive"
-        })
+        await showError('Fecha requerida', 'Por favor, selecciona la fecha del avistamiento.')
         setLoading(false)
         return
       }
 
       if (!imageFile) {
-        toast({
-          title: "Imagen requerida",
-          description: "Por favor, sube una foto de la mascota",
-          variant: "destructive"
-        })
+        await showError('Imagen requerida', 'Por favor, sube una foto de la mascota para ayudar en su identificación.')
         setLoading(false)
         return
       }
 
       if (!acceptTerms) {
-        toast({
-          title: "Consentimiento requerido",
-          description: "Debes aceptar que tus datos de contacto sean visibles",
-          variant: "destructive"
-        })
+        await showError(
+          'Consentimiento requerido', 
+          'Debes aceptar que tus datos de contacto sean visibles para ayudar a reunir la mascota con su familia.'
+        )
         setLoading(false)
         return
       }
@@ -177,22 +153,19 @@ export function ReportPetForm() {
 
       const result = await ApiService.reportLostPetSighting(formDataToSend)
 
-      toast({
-        title: "✅ Reporte enviado",
-        description: "Avistamiento registrado con imagen exitosamente"
-      })
+      await showSuccess(
+        '¡Reporte enviado!',
+        'El avistamiento de la mascota ha sido registrado exitosamente. Gracias por ayudar a reunir mascotas con sus familias.'
+      )
 
-      setTimeout(() => {
-        router.push('/perdidos')
-      }, 1500)
+      router.push('/perdidos')
 
     } catch (error) {
       console.error('Error al enviar reporte:', error)
-      toast({
-        title: "Error",
-        description: error.message || 'No se pudo enviar el reporte',
-        variant: "destructive"
-      })
+      await showError(
+        'Error al enviar reporte',
+        error.message || 'No se pudo registrar el avistamiento. Por favor, intenta nuevamente.'
+      )
     } finally {
       setLoading(false)
     }
