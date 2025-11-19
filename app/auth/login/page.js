@@ -52,9 +52,34 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6">
-      <div className="w-full max-w-md">
-        <Card>
+    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50/40 to-rose-50/30">
+      {/* Decorative background elements */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        {/* Gradient orbs */}
+        <div className="absolute -top-40 -left-40 w-80 h-80 bg-gradient-to-br from-amber-300/25 to-orange-300/25 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-gradient-to-br from-rose-300/25 to-pink-300/25 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-br from-orange-200/15 to-amber-200/15 rounded-full blur-3xl" />
+        
+        {/* Paw pattern overlay */}
+        <svg className="absolute inset-0 w-full h-full opacity-[0.12]" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="pawPattern" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse">
+              {/* Main pad */}
+              <ellipse cx="60" cy="70" rx="18" ry="22" fill="#f97316" opacity="0.4" />
+              {/* Top left toe */}
+              <ellipse cx="42" cy="45" rx="10" ry="14" fill="#fb923c" opacity="0.4" />
+              {/* Top center toe */}
+              <ellipse cx="60" cy="38" rx="10" ry="14" fill="#fb923c" opacity="0.4" />
+              {/* Top right toe */}
+              <ellipse cx="78" cy="45" rx="10" ry="14" fill="#fb923c" opacity="0.4" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#pawPattern)" />
+        </svg>
+      </div>
+
+      <div className="w-full max-w-md relative z-10">
+        <Card className="backdrop-blur-md bg-white/95 shadow-2xl border-orange-100/50 ring-1 ring-orange-900/5">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold text-primary">Iniciar Sesión</CardTitle>
             <CardDescription>Ingresa tus datos para acceder a DalePata</CardDescription>

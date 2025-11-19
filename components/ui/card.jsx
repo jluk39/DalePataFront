@@ -8,6 +8,7 @@ function Card({ className, ...props }) {
       data-slot="card"
       className={cn(
         'bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm',
+        'transition-transform duration-150 hover:-translate-y-0.5',
         className,
       )}
       {...props}
