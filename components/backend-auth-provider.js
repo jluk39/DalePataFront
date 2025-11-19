@@ -207,6 +207,26 @@ export function AuthProvider({ children }) {
     ApiService.setUser(updatedUserData)
   }
 
+  const requestPasswordReset = async (email) => {
+    try {
+      const result = await ApiService.requestPasswordReset(email)
+      return result
+    } catch (error) {
+      console.error('Error requesting password reset:', error)
+      throw error
+    }
+  }
+
+  const resetPassword = async (token, newPassword) => {
+    try {
+      const result = await ApiService.resetPassword(token, newPassword)
+      return result
+    } catch (error) {
+      console.error('Error resetting password:', error)
+      throw error
+    }
+  }
+
   const value = {
     user,
     loading,
@@ -218,6 +238,8 @@ export function AuthProvider({ children }) {
     refreshAuth,
     checkUserAccess,
     updateUser,
+    requestPasswordReset,
+    resetPassword,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
