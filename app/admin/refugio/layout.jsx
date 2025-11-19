@@ -4,10 +4,11 @@ import { useAuth } from "../../../components/backend-auth-provider.js"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { Button } from "../../../components/ui/button.jsx"
-import { Home, Heart, FileText, Settings, LogOut, Menu, X } from "lucide-react"
+import { Home, Heart, FileText, Settings, LogOut, Menu, X, MapPin } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import AdminProtectedRoute from "../../../components/admin/admin-protected-route.jsx"
+import Image from "next/image"
 
 export default function AdminLayout({ children }) {
   const { user, loading, signOut } = useAuth()
@@ -44,6 +45,12 @@ export default function AdminLayout({ children }) {
       href: "/admin/refugio/solicitudes",
       icon: FileText,
       current: pathname === "/admin/refugio/solicitudes",
+    },
+    {
+      name: "Perdidos",
+      href: "/admin/refugio/perdidos",
+      icon: MapPin,
+      current: pathname === "/admin/refugio/perdidos",
     },
     {
       name: "Configuración",
@@ -84,10 +91,13 @@ export default function AdminLayout({ children }) {
           {/* Header */}
           <div className="flex items-center justify-between h-16 px-6 border-b border-sidebar-border">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-sidebar-primary rounded-full flex items-center justify-center">
-                <span className="text-sidebar-primary-foreground font-bold text-sm">🐾</span>
-              </div>
-              <span className="text-sidebar-foreground font-semibold">DalePata Admin</span>
+              <Image 
+                src="/images/dalepata-transpa.png" 
+                alt="DalePata Logo" 
+                width={120} 
+                height={32}
+                className="object-contain"
+              />
             </div>
             <Button
               variant="ghost"
