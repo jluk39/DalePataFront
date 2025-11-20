@@ -188,8 +188,8 @@ export default function RegisterPage() {
           // Usuarios refugio van directamente al panel admin
           router.push("/admin/refugio")
         } else {
-          // Otros usuarios van a la página principal
-          router.push("/")
+          // Otros usuarios van a la página de inicio
+          router.push("/inicio")
         }
         
         router.refresh() // Forzar actualización de la página

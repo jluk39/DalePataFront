@@ -16,7 +16,8 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 
 const pageNames = {
-  "/": "Inicio",
+  "/": "DalePata",
+  "/inicio": "Inicio",
   "/adoptar": "Adoptar",
   "/perdidos": "Mascotas Perdidas",
   "/seguimiento": "Seguimiento",

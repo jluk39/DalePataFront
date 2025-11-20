@@ -11,7 +11,7 @@ import { Button } from "./ui/button.jsx"
 const navigation = [
   {
     name: "Inicio",
-    href: "/",
+    href: "/inicio",
     icon: Home,
   },
   {
