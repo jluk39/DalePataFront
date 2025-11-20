@@ -1,9 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "../components/ui/button.jsx"
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card.jsx"
-import { ApiService } from "../lib/api.js"
+import { Button } from "../../components/ui/button.jsx"
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card.jsx"
+import { ApiService } from "../../lib/api.js"
 
 export default function TestPage() {
   const [testResults, setTestResults] = useState([])
