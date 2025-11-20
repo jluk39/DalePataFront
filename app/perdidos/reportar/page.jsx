@@ -13,7 +13,7 @@ export default function ReportarPage() {
             <div className="mb-6">
               <h1 className="text-3xl font-bold text-foreground mb-2">Reportar Mascota</h1>
               <p className="text-muted-foreground">
-                Completa el formulario para reportar una mascota perdida o encontrada
+                Completa el formulario para reportar una mascota que hayas visto perdida o encontrada en la vía pública
               </p>
             </div>
 

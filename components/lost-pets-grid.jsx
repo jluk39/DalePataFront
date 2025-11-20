@@ -1,83 +1,109 @@
-﻿import { LostFoundCard } from "./lost-found-card.jsx"
+﻿"use client"
 
-const mockLostPets = [
-  {
-    id: "1",
-    name: "Max",
-    type: "Perro",
-    breed: "Golden Retriever",
-    age: "3 años",
-    gender: "Macho",
-    color: "Dorado",
-    size: "Grande",
-    description: "Max se perdió en el parque Centenario. Lleva collar azul con placa de identificación.",
-    image: "/golden-retriever-dog-happy.jpg",
-    location: "Parque Centenario, CABA",
-    lastSeen: "2024-03-15",
-    contactName: "María González",
-    contactPhone: "+54 11 1234-5678",
-    contactEmail: "maria@email.com",
-    reward: "$50.000",
-    status: "lost",
-    urgent: true,
-  },
-  {
-    id: "2",
-    name: "Luna",
-    type: "Gato",
-    breed: "Siamés",
-    age: "2 años",
-    gender: "Hembra",
-    color: "Crema y marrón",
-    size: "Pequeño",
-    description: "Luna es muy tímida. Se escapó por la ventana durante una tormenta.",
-    image: "/siamese-cat-cream-brown.jpg",
-    location: "Villa Crespo, CABA",
-    lastSeen: "2024-03-18",
-    contactName: "Carlos Ruiz",
-    contactPhone: "+54 11 9876-5432",
-    contactEmail: "carlos@email.com",
-    reward: null,
-    status: "lost",
-    urgent: false,
-  },
-  {
-    id: "3",
-    name: "Rocky",
-    type: "Perro",
-    breed: "Mestizo",
-    age: "5 años",
-    gender: "Macho",
-    color: "Negro y blanco",
-    size: "Mediano",
-    description: "Rocky es muy amigable. Se perdió cerca del mercado de San Telmo.",
-    image: "/black-dog-mixed-breed.jpg",
-    location: "San Telmo, CABA",
-    lastSeen: "2024-03-20",
-    contactName: "Ana López",
-    contactPhone: "+54 11 5555-1234",
-    contactEmail: "ana@email.com",
-    reward: "$30.000",
-    status: "lost",
-    urgent: true,
-  },
-]
+import { useEffect, useState } from "react"
+import { LostFoundCard } from "./lost-found-card.jsx"
+import { ApiService } from "../lib/api.js"
+import { Loader2 } from "lucide-react"
 
 export function LostPetsGrid() {
+  const [pets, setPets] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    loadLostPets()
+  }, [])
+
+  const loadLostPets = async () => {
+    try {
+      setLoading(true)
+      const data = await ApiService.fetchLostPets()
+      console.log('✅ Mascotas perdidas cargadas:', data)
+      
+      // Transformar datos para el componente LostFoundCard
+      const transformedData = data.map(pet => {
+        // Determinar contacto (prioridad: reportado_por > duenio)
+        const contacto = pet.reportado_por || pet.duenio || {}
+        
+        return {
+          id: pet.id.toString(),
+          name: pet.nombre || pet.name,
+          type: pet.especie || pet.species,
+          breed: pet.raza || pet.breed || 'Raza no especificada',
+          age: pet.edad || pet.age || 'Edad desconocida',
+          gender: pet.genero || pet.sexo || pet.gender || 'No especificado',
+          color: pet.color || 'Color no especificado',
+          size: pet.tamaño || 'Tamaño no especificado',
+          description: pet.descripcion || pet.description || 'Sin descripción',
+          image: pet.imagen || pet.image || '/placeholder.jpg',
+          location: pet.perdida_direccion || pet.location,
+          lastSeen: pet.perdida_fecha || pet.lostDate,
+          contactName: contacto.nombre || 'No disponible',
+          contactPhone: contacto.telefono || 'No disponible',
+          contactEmail: contacto.email || 'No disponible',
+          status: 'lost',
+          lat: pet.perdida_lat || pet.lat,
+          lon: pet.perdida_lon || pet.lon,
+          reportadoPorId: pet.reportado_por?.id || null,
+          duenioId: pet.duenio?.id || null
+        }
+      })
+      
+      setPets(transformedData)
+    } catch (error) {
+      console.error('Error al cargar mascotas perdidas:', error)
+      setError(error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2 text-muted-foreground">Cargando mascotas perdidas...</span>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-destructive">Error: {error}</p>
+        <button 
+          onClick={loadLostPets}
+          className="mt-4 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
+        >
+          Reintentar
+        </button>
+      </div>
+    )
+  }
+
+  if (pets.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-muted-foreground">No hay mascotas perdidas reportadas en este momento</p>
+      </div>
+    )
+  }
+
   return (
     <div>
       <div className="mb-4">
-        <p className="text-muted-foreground">{mockLostPets.length} mascotas perdidas reportadas</p>
+        <p className="text-muted-foreground">{pets.length} mascotas perdidas reportadas</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {mockLostPets.map((pet) => (
+        {pets.map((pet) => (
           <LostFoundCard key={pet.id} pet={pet} />
         ))}
       </div>
     </div>
   )
 }
+
 
 
 

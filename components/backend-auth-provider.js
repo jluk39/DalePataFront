@@ -59,7 +59,6 @@ export function AuthProvider({ children }) {
             })
         } else if (token && !savedUser) {
           // Tenemos token pero no usuario guardado, intentar obtener perfil
-          console.log('🔍 Token found but no saved user, fetching profile...')
           try {
             const profile = await ApiService.getUserProfile()
             if (profile.user) {
@@ -141,6 +140,26 @@ export function AuthProvider({ children }) {
     }
   }
 
+  const registerByType = async (userData, userType) => {
+    try {
+      const result = await ApiService.registerByType(userData, userType)
+      
+      if (result.token) {
+        ApiService.setToken(result.token)
+      }
+      
+      if (result.user) {
+        ApiService.setUser(result.user)
+        setUser(result.user)
+      }
+      
+      return result
+    } catch (error) {
+      console.error('Error registering by type:', error)
+      throw error
+    }
+  }
+
   const refreshUserProfile = async () => {
     try {
       const profile = await ApiService.getUserProfile()
@@ -155,13 +174,72 @@ export function AuthProvider({ children }) {
     }
   }
 
+  const refreshAuth = () => {
+    const token = ApiService.getToken()
+    const savedUser = ApiService.getUser()
+    
+    if (token && savedUser) {
+      console.log('🔄 Refreshing auth state from localStorage')
+      setUser(savedUser)
+    }
+  }
+
+  const checkUserAccess = (allowedTypes = []) => {
+    if (!user) return { allowed: false, redirectTo: '/auth/login' }
+    
+    // El campo correcto es userType (con U mayúscula)
+    const userType = user.userType || user.tipo || user.role || user.user_type
+    
+    if (allowedTypes.length > 0 && !allowedTypes.includes(userType)) {
+      // Si el usuario no está en la lista de tipos permitidos
+      if (userType === 'refugio') {
+        return { allowed: false, redirectTo: '/admin/refugio' }
+      }
+      return { allowed: false, redirectTo: '/' }
+    }
+    
+    return { allowed: true }
+  }
+
+  const updateUser = (updatedUserData) => {
+    console.log('🔄 Updating user data in context:', updatedUserData)
+    setUser(updatedUserData)
+    ApiService.setUser(updatedUserData)
+  }
+
+  const requestPasswordReset = async (email) => {
+    try {
+      const result = await ApiService.requestPasswordReset(email)
+      return result
+    } catch (error) {
+      console.error('Error requesting password reset:', error)
+      throw error
+    }
+  }
+
+  const resetPassword = async (token, newPassword) => {
+    try {
+      const result = await ApiService.resetPassword(token, newPassword)
+      return result
+    } catch (error) {
+      console.error('Error resetting password:', error)
+      throw error
+    }
+  }
+
   const value = {
     user,
     loading,
     signOut,
     signIn,
     register,
+    registerByType,
     refreshUserProfile,
+    refreshAuth,
+    checkUserAccess,
+    updateUser,
+    requestPasswordReset,
+    resetPassword,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

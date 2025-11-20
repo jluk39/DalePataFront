@@ -86,13 +86,13 @@ export function AdoptionFilters({ onFiltersChange }) {
 
         {/* Género */}
         <div className="space-y-2">
-          <Label>Género</Label>
+          <Label>Sexo</Label>
           <Select value={filters.gender} onValueChange={handleGenderChange}>
             <SelectTrigger>
               <SelectValue placeholder="Cualquier género" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Cualquier género</SelectItem>
+              <SelectItem value="all">Cualquier sexo</SelectItem>
               <SelectItem value="Macho">Macho</SelectItem>
               <SelectItem value="Hembra">Hembra</SelectItem>
             </SelectContent>

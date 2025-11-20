@@ -3,14 +3,45 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card.jsx"
 import { Badge } from "./ui/badge.jsx"
-import { MapPin, Calendar, Heart, Share2, Loader2 } from "lucide-react"
+import { MapPin, Calendar, Share2, Loader2, MessageCircle } from "lucide-react"
 import { Button } from "./ui/button.jsx"
 import { ApiService } from "../lib/api.js"
+import { showSuccess, showError } from "../lib/sweetalert.js"
 
 export function PetProfile({ petId }) {
   const [pet, setPet] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+
+  const handleShare = async () => {
+    const url = window.location.href
+    
+    try {
+      await navigator.clipboard.writeText(url)
+      showSuccess('¡Copiado!', 'Enlace copiado al portapapeles')
+    } catch (error) {
+      console.error('Error copying to clipboard:', error)
+      showError('Error', 'No se pudo copiar el enlace')
+    }
+  }
+
+  const handleWhatsAppContact = () => {
+    if (!pet.phone) {
+      showError('Error', 'No hay teléfono disponible para contactar')
+      return
+    }
+    
+    // Limpiar el número de teléfono (quitar espacios, guiones, paréntesis)
+    const cleanPhone = pet.phone.replace(/\D/g, '')
+    
+    // Crear mensaje predeterminado
+    const message = encodeURIComponent(
+      `Hola! Estoy interesado/a en adoptar a ${pet.name}. Me gustaría obtener más información.`
+    )
+    
+    // Abrir WhatsApp con el número y mensaje
+    window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank')
+  }
 
   useEffect(() => {
     const fetchPetDetails = async () => {
@@ -84,11 +115,8 @@ export function PetProfile({ petId }) {
               alt={pet.name}
               className="w-full h-80 object-cover rounded-t-lg"
             />
-            <div className="absolute top-4 right-4 flex gap-2">
-              <Button variant="secondary" size="icon">
-                <Heart className="h-4 w-4" />
-              </Button>
-              <Button variant="secondary" size="icon">
+            <div className="absolute top-4 right-4">
+              <Button variant="secondary" size="icon" onClick={handleShare} title="Compartir enlace">
                 <Share2 className="h-4 w-4" />
               </Button>
             </div>
@@ -104,7 +132,7 @@ export function PetProfile({ petId }) {
                 </div>
                 <div className="flex items-center text-muted-foreground">
                   <Calendar className="h-4 w-4 mr-1" />
-                  Rescatado el {pet.rescueDate}
+                  Registrado el {pet.rescueDate}
                 </div>
               </div>
               <Badge variant="secondary" className="text-sm">
@@ -125,15 +153,15 @@ export function PetProfile({ petId }) {
         <CardContent>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-muted-foreground">Raza</p>
-              <p className="font-medium">{pet.breed}</p>
-            </div>
-            <div>
               <p className="text-sm text-muted-foreground">Edad</p>
               <p className="font-medium">{pet.age}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Género</p>
+              <p className="text-sm text-muted-foreground">Especie</p>
+              <p className="font-medium">{pet.species}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Sexo</p>
               <p className="font-medium">{pet.gender}</p>
             </div>
             <div>
@@ -213,6 +241,16 @@ export function PetProfile({ petId }) {
                 <p className="text-sm text-muted-foreground">Email</p>
                 <p className="font-medium">{pet.email}</p>
               </div>
+            )}
+            {pet.phone && (
+              <Button 
+                onClick={handleWhatsAppContact}
+                className="w-full mt-4"
+                size="lg"
+              >
+                <MessageCircle className="mr-2 h-5 w-5" />
+                Contactar por WhatsApp
+              </Button>
             )}
           </div>
         </CardContent>

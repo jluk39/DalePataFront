@@ -1,6 +1,3 @@
-﻿"use client"
-
-// Inspired by react-hot-toast library
 import * as React from "react"
 
 const TOAST_LIMIT = 1
@@ -52,7 +49,8 @@ export const reducer = (state, action) => {
         toasts: state.toasts.map((t) => (t.id === action.toast.id ? { ...t, ...action.toast } : t)),
       }
 
-    case "DISMISS_TOAST" = action
+    case "DISMISS_TOAST": {
+      const { toastId } = action
 
       if (toastId) {
         addToRemoveQueue(toastId)
@@ -105,13 +103,19 @@ function toast({ ...props }) {
   const update = (props) =>
     dispatch({
       type: "UPDATE_TOAST",
-      toast,
+      toast: { ...props, id },
     })
   const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id })
 
   dispatch({
     type: "ADD_TOAST",
-    toast,
+    toast: {
+      ...props,
+      id,
+      open: true,
+      onOpenChange: (open) => {
+        if (!open) dismiss()
+      },
     },
   })
 
@@ -138,10 +142,8 @@ function useToast() {
   return {
     ...state,
     toast,
-    dismiss: (toastId) => dispatch({ type: "DISMISS_TOAST", toastId }),
+    dismiss: (toastId) => dispatch({ type: "REMOVE_TOAST", toastId }),
   }
 }
 
 export { useToast, toast }
-
-
