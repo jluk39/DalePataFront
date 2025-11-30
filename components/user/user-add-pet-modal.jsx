@@ -46,9 +46,9 @@ export default function UserAddPetModal({ open, onOpenChange, onSubmit }) {
       }
 
       // Validar formato
-      const validFormats = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+      const validFormats = ['image/jpeg', 'image/jpg', 'image/png']
       if (!validFormats.includes(file.type)) {
-        setError('Formato de imagen no válido. Use JPEG, PNG o WebP')
+        setError('Formato de imagen no válido. Use JPEG o PNG')
         return
       }
 
@@ -219,11 +219,11 @@ export default function UserAddPetModal({ open, onOpenChange, onSubmit }) {
               <div>
                 <Input
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/jpg,image/png"
                   onChange={handleImageUpload}
                   className="bg-input border-border text-foreground"
                 />
-                <p className="text-muted-foreground text-sm mt-1">Formatos: JPG, PNG, GIF (máx. 5MB)</p>
+                <p className="text-muted-foreground text-sm mt-1">Formatos: JPG, PNG (máx. 5MB)</p>
               </div>
             </div>
           </div>

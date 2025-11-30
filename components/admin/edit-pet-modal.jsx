@@ -74,9 +74,9 @@ export default function EditPetModal({ open, onOpenChange, pet, onPetUpdated }) 
       }
 
       // Validar formato
-      const validFormats = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+      const validFormats = ['image/jpeg', 'image/jpg', 'image/png']
       if (!validFormats.includes(file.type)) {
-        setError('Formato de imagen no válido. Use JPEG, PNG o WebP')
+        setError('Formato de imagen no válido. Use JPEG o PNG')
         return
       }
 
@@ -235,12 +235,12 @@ export default function EditPetModal({ open, onOpenChange, pet, onPetUpdated }) 
               <div>
                 <Input
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/jpg,image/png"
                   onChange={handleImageUpload}
                   className="bg-input border-border text-foreground"
                 />
                 <p className="text-muted-foreground text-sm mt-1">
-                  {imageFile ? 'Nueva imagen seleccionada' : 'Selecciona una nueva imagen (opcional)'}
+                  {imageFile ? 'Nueva imagen seleccionada (JPG/PNG)' : 'Selecciona una nueva imagen JPG o PNG (opcional)'}
                 </p>
               </div>
             </div>
