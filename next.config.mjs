@@ -9,6 +9,13 @@ const nextConfig = {
   experimental: {
     esmExternals: true,
   },
+  // Configuración para deployment
+  output: 'standalone',
+  // Permitir imágenes de Supabase
+  images: {
+    unoptimized: true,
+    domains: ['supabase.co'],
+  },
 }
 
 export default nextConfig

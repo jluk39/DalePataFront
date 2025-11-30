@@ -25,15 +25,6 @@ export default function RegisterPage() {
   const [tipoOrganizacion, setTipoOrganizacion] = useState("")
   const [capacidad, setCapacidad] = useState("")
   
-  // Campos específicos para veterinaria
-  const [especialidades, setEspecialidades] = useState("")
-  const [horarios, setHorarios] = useState("")
-  
-  // Campos específicos para médico
-  const [veterinariaId, setVeterinariaId] = useState("")
-  const [especialidad, setEspecialidad] = useState("")
-  const [matricula, setMatricula] = useState("")
-  
   const [error, setError] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -85,31 +76,7 @@ export default function RegisterPage() {
         }
       }
 
-      if (userType === 'veterinaria') {
-        if (!especialidades.trim()) {
-          setError("Las especialidades son obligatorias para veterinarias")
-          setIsLoading(false)
-          return
-        }
-        if (!horarios.trim()) {
-          setError("Los horarios de atención son obligatorios")
-          setIsLoading(false)
-          return
-        }
-      }
 
-      if (userType === 'medico') {
-        if (!especialidad.trim() || !matricula.trim()) {
-          setError("La especialidad y matrícula son obligatorios para médicos")
-          setIsLoading(false)
-          return
-        }
-        if (!veterinariaId || veterinariaId <= 0) {
-          setError("Debe seleccionar una veterinaria válida")
-          setIsLoading(false)
-          return
-        }
-      }
 
       // Validación de formato de email más estricta
       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
@@ -154,17 +121,6 @@ export default function RegisterPage() {
       if (userType === 'refugio') {
         userData.tipo_organizacion = tipoOrganizacion.trim()
         userData.capacidad = parseInt(capacidad)
-      }
-
-      if (userType === 'veterinaria') {
-        userData.especialidades = especialidades.trim()
-        userData.horarios = horarios.trim()
-      }
-
-      if (userType === 'medico') {
-        userData.especialidad = especialidad.trim()
-        userData.matricula = matricula.trim()
-        userData.veterinaria_id = parseInt(veterinariaId)
       }
 
       console.log(`Intentando registrar ${userType} con datos:`, {
@@ -268,10 +224,8 @@ export default function RegisterPage() {
                     <SelectValue placeholder="Selecciona el tipo de cuenta" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="usuario">👤 Usuario (Adoptar mascotas)</SelectItem>
+                    <SelectItem value="usuario">👤 Usuario (Adoptar mascotas y Reportar Perdidos)</SelectItem>
                     <SelectItem value="refugio">🏠 Refugio (Publicar mascotas para adopción)</SelectItem>
-                    <SelectItem value="veterinaria">🏥 Veterinaria (Clínica veterinaria)</SelectItem>
-                    <SelectItem value="medico">👨‍⚕️ Médico Veterinario</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -384,82 +338,7 @@ export default function RegisterPage() {
                 </div>
               )}
 
-              {/* Campos específicos para veterinaria */}
-              {userType === 'veterinaria' && (
-                <div className="space-y-4 p-4 border rounded-lg bg-muted/50">
-                  <h3 className="font-medium text-sm">Información de la Veterinaria</h3>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="especialidades">Especialidades</Label>
-                      <Textarea
-                        id="especialidades"
-                        placeholder="Ej: Cirugía, Medicina General, Dermatología..."
-                        required
-                        value={especialidades}
-                        onChange={(e) => setEspecialidades(e.target.value)}
-                        rows={2}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="horarios">Horarios de Atención</Label>
-                      <Textarea
-                        id="horarios"
-                        placeholder="Ej: Lun-Vie 8:00-18:00, Sáb 8:00-12:00"
-                        required
-                        value={horarios}
-                        onChange={(e) => setHorarios(e.target.value)}
-                        rows={2}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
 
-              {/* Campos específicos para médico */}
-              {userType === 'medico' && (
-                <div className="space-y-4 p-4 border rounded-lg bg-muted/50">
-                  <h3 className="font-medium text-sm">Información Profesional</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="especialidad">Especialidad</Label>
-                      <Input
-                        id="especialidad"
-                        type="text"
-                        placeholder="Ej: Cirugía, Cardiología..."
-                        required
-                        value={especialidad}
-                        onChange={(e) => setEspecialidad(e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="matricula">Matrícula Profesional</Label>
-                      <Input
-                        id="matricula"
-                        type="text"
-                        placeholder="Ej: VET-12345"
-                        required
-                        value={matricula}
-                        onChange={(e) => setMatricula(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="veterinariaId">ID de Veterinaria (temporal)</Label>
-                    <Input
-                      id="veterinariaId"
-                      type="number"
-                      placeholder="Ingresa el ID de la veterinaria"
-                      min="1"
-                      required
-                      value={veterinariaId}
-                      onChange={(e) => setVeterinariaId(e.target.value)}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      En el futuro esto será un selector. Por ahora ingresa el ID numérico.
-                    </p>
-                  </div>
-                </div>
-              )}
 
               {/* Contraseñas */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -493,10 +372,7 @@ export default function RegisterPage() {
               
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Creando cuenta..." : `Crear Cuenta ${
-                  userType === 'usuario' ? 'de Usuario' :
-                  userType === 'refugio' ? 'de Refugio' :
-                  userType === 'veterinaria' ? 'de Veterinaria' :
-                  'de Médico Veterinario'
+                  userType === 'refugio' ? 'de Refugio' : 'de Usuario'
                 }`}
               </Button>
             </form>
