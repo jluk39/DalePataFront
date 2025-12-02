@@ -2,8 +2,10 @@
 
 import { Bell, Settings, User } from "lucide-react"
 import { Button } from "./ui/button.jsx"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import Image from "next/image"
+import Link from "next/link"
+import { useState, useEffect } from "react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,8 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu.jsx"
 import { useAuth } from "./backend-auth-provider.js"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
+import { ApiService } from "../lib/api.js"
 
 const pageNames = {
   "/": "DalePata",
@@ -33,6 +34,26 @@ export function Header() {
   const { user, signOut } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  useEffect(() => {
+    if (user) {
+      loadNotifications()
+      // Actualizar cada minuto
+      const interval = setInterval(loadNotifications, 60000)
+      return () => clearInterval(interval)
+    }
+  }, [user])
+
+  const loadNotifications = async () => {
+    try {
+      const notifications = await ApiService.getVirtualNotifications()
+      const unread = notifications.filter(n => !n.leida).length
+      setUnreadCount(unread)
+    } catch (error) {
+      console.error('Error loading notifications:', error)
+    }
+  }
 
   const handleProfileClick = () => {
     router.push("/perfil")
@@ -70,8 +91,18 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="hidden md:flex">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="hidden md:flex relative"
+          onClick={() => router.push('/notificaciones')}
+        >
           <Bell className="w-5 h-5" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-semibold">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
         </Button>
 
         {user ? (
