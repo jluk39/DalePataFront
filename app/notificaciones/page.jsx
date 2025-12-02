@@ -137,16 +137,6 @@ export default function NotificationsPage() {
                                 : `Tu solicitud de adopción para ${notif.mascota} ha sido rechazada.`
                               }
                             </p>
-                            <p className="text-sm text-muted-foreground mt-2">
-                              {new Date(notif.fecha).toLocaleDateString('es-AR', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                timeZone: 'America/Argentina/Buenos_Aires'
-                              })}
-                            </p>
                             {notif.estado === 'aprobada' && (
                               <p className="text-sm text-green-700 mt-2 font-medium">
                                 👉 Haz clic para ver los detalles
