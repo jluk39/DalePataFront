@@ -1,450 +1,582 @@
-# DalePata Frontend
+# DalePata - Sistema de Adopción de Mascotas
 
-## 🐾 Descripción General
+## Descripción General
 
-DalePata es una aplicación web de adopción y rescate de mascotas construida con **Next.js 14.2.16**. El frontend maneja la interfaz de usuario, autenticación con backend API, y la gestión de estados de usuario.
+DalePata es una plataforma web integral para la gestión de adopción, cuidado y seguimiento de mascotas. El sistema está desarrollado con Next.js 14.2.16 utilizando el App Router, e implementa una arquitectura moderna basada en componentes reutilizables y gestión centralizada del estado de autenticación.
 
-## 🏗️ Arquitectura del Proyecto
+La aplicación permite a diferentes tipos de usuarios (adoptantes, refugios) interactuar dentro de un ecosistema unificado para facilitar el proceso de adopción y cuidado de animales.
 
-### Estructura de Carpetas
+## Tecnologías Principales
+
+- **Framework**: Next.js 14.2.16
+- **React**: 18
+- **Gestor de Paquetes**: pnpm
+- **Autenticación**: JWT (JSON Web Tokens)
+- **UI Components**: shadcn/ui con Radix UI
+- **Estilos**: Tailwind CSS 3.4.1
+- **Mapas**: Mapbox GL JS
+- **Validación de Formularios**: React Hook Form con Zod
+- **Notificaciones**: SweetAlert2
+- **Formateo de Fechas**: date-fns
+
+## Arquitectura del Proyecto
+
+### Estructura de Directorios
 
 ```
-dalepata/
-├── app/                          # App Router de Next.js 13+
-│   ├── globals.css              # Estilos globales
-│   ├── layout.js                # Layout raíz con AuthProvider
-│   ├── page.jsx                 # Página principal (home)
-│   ├── middleware.js            # Middleware simplificado (sin protección de rutas)
+DalePataFront/
+├── app/                          # App Router de Next.js
+│   ├── globals.css              # Estilos globales y configuración Tailwind
+│   ├── layout.js                # Layout principal con AuthProvider
+│   ├── page.jsx                 # Landing page pública
+│   ├── inicio/page.jsx          # Página principal de usuarios autenticados
 │   │
-│   ├── auth/                    # Páginas de autenticación
-│   │   ├── login/page.js        # Página de inicio de sesión
-│   │   ├── registro/page.js     # Página de registro
-│   │   └── confirmacion/page.js # Confirmación de registro
+│   ├── auth/                    # Sistema de autenticación
+│   │   ├── login/page.js
+│   │   ├── registro/page.js
+│   │   ├── confirmacion/page.js
+│   │   ├── recuperar-contrasena/page.js
+│   │   └── reset-password/page.js
 │   │
-│   ├── adoptar/                 # Sección de adopción
-│   │   ├── page.jsx             # Lista de mascotas en adopción
-│   │   └── [id]/page.jsx        # Perfil individual de mascota
+│   ├── adoptar/                 # Módulo de adopción
+│   │   ├── page.jsx             # Catálogo de mascotas disponibles
+│   │   └── [id]/page.jsx        # Perfil detallado y formulario de solicitud
 │   │
-│   ├── perdidos/                # Mascotas perdidas/encontradas
-│   │   ├── page.jsx             # Lista de mascotas perdidas
-│   │   └── reportar/page.jsx    # Reportar mascota perdida
+│   ├── seguimiento/page.jsx     # Seguimiento de solicitudes de adopción
 │   │
-│   ├── turnos/                  # Gestión de turnos veterinarios
-│   │   ├── page.jsx             # Lista de turnos
-│   │   └── nuevo/page.jsx       # Crear nuevo turno
+│   ├── perdidos/                # Mascotas perdidas y encontradas
+│   │   ├── page.jsx             # Visualización de reportes (lista y mapa)
+│   │   └── reportar/page.jsx    # Formulario de reporte
 │   │
-│   ├── favoritos/page.js        # Mascotas favoritas del usuario
+│   ├── perfil/page.js           # Gestión de perfil de usuario
+│   ├── favoritos/page.js        # Mascotas marcadas como favoritas
 │   ├── historial/page.js        # Historial de actividades
-│   ├── perfil/                  # Perfil de usuario
-│   │   ├── page.js              # Página principal del perfil
-│   │   └── test.js              # Página de testing del perfil
+│   ├── notificaciones/page.jsx  # Centro de notificaciones
 │   │
-│   └── debug/page.js            # Herramienta de debug para autenticación
+│   └── admin/                   # Panel administrativo para refugios
+│       └── refugio/
+│           ├── page.jsx                  # Dashboard principal
+│           ├── mascotas/page.jsx         # Gestión de mascotas
+│           ├── solicitudes/page.jsx      # Gestión de solicitudes
+│           ├── perdidos/page.jsx         # Reportes de mascotas perdidas
+│           └── configuracion/page.jsx    # Configuración del refugio
 │
 ├── components/                   # Componentes reutilizables
-│   ├── ui/                      # Componentes de UI base (shadcn/ui)
+│   ├── ui/                      # Componentes base de shadcn/ui
 │   │   ├── button.jsx
 │   │   ├── card.jsx
-│   │   ├── input.jsx
-│   │   └── ... (más componentes)
+│   │   ├── dialog.jsx
+│   │   ├── form.jsx
+│   │   ├── select.jsx
+│   │   ├── table.jsx
+│   │   └── ... (40+ componentes UI)
 │   │
-│   ├── backend-auth-provider.js # Proveedor de autenticación principal
-│   ├── protected-route.jsx      # Componente para rutas protegidas
-│   ├── header.js                # Header con navegación y dropdown de usuario
-│   ├── header-debug.js          # Versión de debug del header
-│   ├── sidebar.js               # Barra lateral de navegación
+│   ├── admin/                   # Componentes específicos de administración
+│   │   ├── add-pet-modal.jsx
+│   │   ├── edit-pet-modal.jsx
+│   │   ├── admin-protected-route.jsx
+│   │   └── ...
 │   │
-│   └── ... (componentes específicos de mascotas)
+│   ├── user/                    # Componentes específicos de usuarios
+│   │   ├── user-add-pet-modal.jsx
+│   │   ├── user-edit-pet-modal.jsx
+│   │   ├── user-protected-route.jsx
+│   │   └── ...
+│   │
+│   ├── backend-auth-provider.js # Proveedor de contexto de autenticación
+│   ├── notifications-dropdown.jsx # Sistema de notificaciones
+│   ├── header.js                # Barra de navegación superior
+│   ├── sidebar.js               # Menú lateral de navegación
+│   ├── adoption-grid.jsx        # Grilla de mascotas en adopción
+│   ├── adoption-form.jsx        # Formulario de solicitud de adopción
+│   ├── pet-profile.jsx          # Perfil detallado de mascota
+│   ├── report-pet-form.jsx      # Formulario de reporte de mascotas
+│   ├── mapa-perdidos.jsx        # Mapa interactivo con Mapbox
+│   └── ... (50+ componentes especializados)
 │
 ├── lib/                         # Utilidades y configuración
-│   ├── api.js                   # Servicio principal de API
-│   ├── api-config.js            # Configuración de endpoints y debug
-│   ├── utils.js                 # Utilidades generales
-│   └── supabase/                # Configuración de Supabase (legacy)
+│   ├── api.js                   # Servicio de API REST
+│   ├── api-config.js            # Endpoints y configuración de API
+│   ├── utils.js                 # Funciones auxiliares
+│   ├── sweetalert.js            # Configuración de alertas
+│   └── supabase/               # Cliente de Supabase (almacenamiento)
 │
 ├── hooks/                       # Custom React Hooks
 │   ├── use-mobile.js
 │   └── use-toast.js
 │
-└── public/                      # Archivos estáticos
-    └── ... (imágenes de mascotas)
+├── public/                      # Archivos estáticos
+│   └── images/
+│
+├── styles/                      # Estilos adicionales
+│   └── globals.css
+│
+└── scripts/                     # Scripts de utilidad
+    └── test-multi-registration.js
 ```
 
-## 🔐 Sistema de Autenticación
+## Módulos Principales
 
-### Arquitectura de Autenticación
+### 1. Sistema de Autenticación
 
-El sistema de autenticación está **completamente migrado del frontend al backend**:
+El sistema de autenticación está construido sobre JWT (JSON Web Tokens) y se integra con un backend API REST. Soporta múltiples tipos de usuarios:
 
-- **Frontend**: Maneja solo la interfaz y el estado del usuario
-- **Backend API**: Maneja toda la lógica de autenticación, tokens JWT, y base de datos
-- **Supabase**: Solo para gestión de usuarios en el backend (NO en frontend)
+- **Usuarios regulares**: Personas que buscan adoptar mascotas
+- **Refugios**: Organizaciones que publican mascotas para adopción
 
-### Flujo de Autenticación
+#### Componentes de Autenticación
 
-```mermaid
-graph TD
-    A[Usuario ingresa credenciales] --> B[Frontend envía a Backend API]
-    B --> C[Backend valida con BD/Supabase]
-    C --> D[Backend genera JWT Token]
-    D --> E[Frontend recibe token + datos usuario]
-    E --> F[Guarda en localStorage]
-    F --> G[AuthProvider actualiza estado global]
-    G --> H[Usuario autenticado en toda la app]
-```
+- `backend-auth-provider.js`: Contexto global que gestiona el estado de autenticación, tokens JWT y datos de usuario
+- `protected-route.jsx`: HOC para proteger rutas que requieren autenticación
+- `admin-protected-route.jsx`: HOC específico para rutas administrativas de refugios
+- `user-protected-route.jsx`: HOC para rutas de usuarios regulares
 
-### Componentes Clave de Auth
+#### Flujos Implementados
 
-#### 1. **AuthProvider** (`components/backend-auth-provider.js`)
+1. **Registro**: Formulario multi-tipo con validación específica según el tipo de usuario
+2. **Login**: Autenticación con email y contraseña, almacenamiento de token en localStorage
+3. **Recuperación de contraseña**: Integración con Supabase para reset de contraseña
+4. **Actualización de perfil**: Modificación de datos personales y cambio de contraseña
+5. **Logout**: Limpieza de tokens y redirección
 
-El corazón del sistema de autenticación:
+### 2. Módulo de Adopción
+
+Sistema completo para la gestión del proceso de adopción de mascotas.
+
+#### Funcionalidades
+
+- **Catálogo de mascotas**: Visualización de todas las mascotas disponibles para adopción
+- **Filtros avanzados**: Por especie, raza, edad, tamaño, género y ubicación
+- **Perfil detallado**: Información completa de cada mascota con galería de imágenes
+- **Solicitud de adopción**: Formulario estructurado con preguntas sobre:
+  - Tipo de vivienda y espacio disponible
+  - Experiencia previa con mascotas
+  - Mascotas actuales en el hogar
+  - Razón de adopción
+  - Compromiso de tiempo
+- **Seguimiento de solicitudes**: Panel para ver el estado de solicitudes enviadas
+
+#### Componentes Clave
+
+- `adoption-grid.jsx`: Grilla responsiva de mascotas
+- `adoption-card.jsx`: Tarjeta individual con información resumida
+- `adoption-filters.jsx`: Sistema de filtrado con múltiples criterios
+- `adoption-form.jsx`: Formulario de solicitud con validación
+- `pet-profile.jsx`: Vista detallada de mascota individual
+
+### 3. Módulo de Mascotas Perdidas
+
+Sistema de reporte y seguimiento de mascotas perdidas con geolocalización.
+
+#### Funcionalidades
+
+- **Visualización dual**: Lista y mapa interactivo con Mapbox
+- **Reporte de mascotas perdidas**: Formulario con ubicación geográfica
+- **Reporte de avistamientos**: Permite reportar mascotas vistas
+- **Geolocalización**: Marcadores en mapa con información de contacto
+- **Búsqueda geográfica**: Filtrado por proximidad
+
+#### Componentes Principales
+
+- `mapa-perdidos.jsx`: Mapa interactivo con Mapbox GL
+- `report-pet-form.jsx`: Formulario de reporte con selector de ubicación
+- `lost-found-card.jsx`: Tarjeta de mascota perdida
+- `lost-found-tabs.jsx`: Tabs para alternar entre perdidas y encontradas
+
+### 4. Panel Administrativo para Refugios
+
+Dashboard completo para la gestión de mascotas y solicitudes de adopción.
+
+#### Funcionalidades
+
+- **Dashboard**: Estadísticas y métricas del refugio
+  - Total de mascotas registradas
+  - Mascotas disponibles para adopción
+  - Solicitudes pendientes
+  - Actividad reciente
+- **Gestión de mascotas**:
+  - Crear, editar y eliminar registros
+  - Actualización de estado de salud
+  - Gestión de disponibilidad para adopción
+  - Carga de imágenes
+- **Gestión de solicitudes**:
+  - Visualización de solicitudes recibidas
+  - Aprobación o rechazo con comentarios
+  - Filtrado por estado
+  - Vista detallada de información del solicitante
+- **Configuración**: Actualización de datos del refugio
+
+#### Componentes Administrativos
+
+- `add-pet-modal.jsx`: Modal para registrar nueva mascota
+- `edit-pet-modal.jsx`: Modal para editar información de mascota
+- `admin-protected-route.jsx`: Protección de rutas administrativas
+
+### 5. Sistema de Notificaciones
+
+Sistema de notificaciones en tiempo diferido para mantener informados a los usuarios sobre eventos importantes.
+
+#### Funcionalidades
+
+- Notificaciones de cambio de estado en solicitudes de adopción
+- Contador de notificaciones no leídas
+- Marcar notificaciones como leídas (individual o masivo)
+- Eliminación de notificaciones
+- Auto-actualización periódica (30 segundos)
+- Navegación contextual al hacer clic en notificación
+
+#### Componentes
+
+- `notifications-dropdown.jsx`: Dropdown con lista de notificaciones en el header
+
+### 6. Gestión de Perfil de Usuario
+
+Módulo para la administración de información personal del usuario.
+
+#### Funcionalidades
+
+- Visualización de datos del usuario
+- Edición de información personal (nombre, apellido, teléfono)
+- Cambio de contraseña con validación de seguridad
+- Gestión de mascotas propias (para usuarios regulares)
+
+## Servicios de API
+
+### ApiService (`lib/api.js`)
+
+Servicio centralizado que gestiona todas las comunicaciones con el backend.
+
+#### Métodos Principales
+
+**Autenticación**
+- `login(email, password, userType)`
+- `register(userData)`
+- `registerByType(userData, userType)`
+- `getUserProfile()`
+- `updateUserProfile(userData)`
+- `updatePassword(passwordData)`
+- `requestPasswordReset(email)`
+- `resetPassword(token, newPassword)`
+- `syncPasswordFromSupabase(email, newPassword)`
+
+**Mascotas**
+- `fetchPets()`: Listar mascotas disponibles para adopción
+- `fetchMyPets()`: Mascotas del usuario autenticado
+- `fetchPetById(petId)`: Obtener detalles de una mascota
+- `createPet(formData)`: Registrar nueva mascota
+- `updatePet(petId, petData)`: Actualizar información
+- `deletePet(petId)`: Eliminar mascota
+- `getAdminPets()`: Mascotas del refugio (admin)
+
+**Solicitudes de Adopción**
+- `getAdoptionRequests(params)`: Listar solicitudes
+- `getAdoptionRequestById(requestId)`: Obtener solicitud específica
+- `createAdoptionRequest(petId, formData)`: Crear solicitud
+- `updateAdoptionRequestStatus(requestId, estado, comentario)`: Actualizar estado
+- `getMyAdoptionRequests()`: Solicitudes del usuario
+- `cancelAdoptionRequest(requestId)`: Cancelar solicitud
+
+**Mascotas Perdidas**
+- `fetchLostPets()`: Listar mascotas perdidas
+- `reportPetAsLost(petId, data)`: Reportar como perdida
+- `reportLostPetSighting(data)`: Reportar avistamiento
+- `markPetAsFound(petId)`: Marcar como encontrada
+- `deleteLostPetReport(petId)`: Eliminar reporte
+
+**Notificaciones**
+- `getNotifications(params)`: Obtener notificaciones del usuario
+- `getUnreadNotificationsCount()`: Contador de no leídas
+- `markNotificationAsRead(notificationId)`: Marcar como leída
+- `markAllNotificationsAsRead()`: Marcar todas como leídas
+- `deleteNotification(notificationId)`: Eliminar notificación
+
+### Gestión de Tokens
+
+El sistema utiliza localStorage para persistir tokens JWT:
 
 ```javascript
-// Funcionalidades principales:
-- Inicialización automática de sesión desde localStorage
-- Gestión del estado global del usuario
-- Verificación de tokens en segundo plano
-- Métodos signIn/signOut
-- Context para toda la aplicación
-```
+// Almacenamiento
+localStorage.setItem('dalepata-auth-token', token)
+localStorage.setItem('dalepata-user', JSON.stringify(user))
 
-**Características importantes:**
-- **Persistencia**: Guarda token y usuario en localStorage
-- **Recuperación automática**: Al refrescar página, recupera la sesión
-- **Validación inteligente**: Verifica tokens sin bloquear la UI
-- **Limpieza automática**: Elimina tokens inválidos
-
-#### 2. **ApiService** (`lib/api.js`)
-
-Servicio centralizado para todas las llamadas a la API:
-
-```javascript
-// Métodos principales:
-- login(email, password, userType) // Autenticación
-- register(userData)               // Registro de usuarios
-- getUserProfile()                 // Obtener perfil del usuario
-- fetchPets()                      // Obtener lista de mascotas
-- fetchPetById(id)                 // Obtener mascota específica
-
-// Gestión de tokens:
-- getToken() / setToken()          // Manejo de localStorage
-- getUser() / setUser()            // Manejo de datos de usuario
-- logout()                         // Limpieza completa
-```
-
-#### 3. **Configuración API** (`lib/api-config.js`)
-
-Centraliza endpoints y configuración:
-
-```javascript
-export const API_CONFIG = {
-  BASE_URL: 'http://localhost:3001/api', // Backend API
-  DEBUG: true // Logs detallados
-}
-
-export const API_ENDPOINTS = {
-  LOGIN: '/auth/login',
-  REGISTER_USER: '/auth/register/usuario',
-  PROFILE: '/auth/profile',
-  LIST_PETS: '/pets',
-  GET_PET: (id) => `/pets/${id}`
-}
-```
-
-### Middleware y Protección de Rutas
-
-#### Middleware Simplificado
-
-```javascript
-// middleware.js - NO protege rutas a nivel de servidor
-// La protección se maneja en el frontend por componente
-
-export async function middleware(request) {
-  return NextResponse.next() // Permite acceso a todas las rutas
-}
-```
-
-#### Protección de Rutas en Frontend
-
-**Opción 1: Componente ProtectedRoute**
-```jsx
-<ProtectedRoute>
-  <ComponenteProtegido />
-</ProtectedRoute>
-```
-
-**Opción 2: Lógica integrada en el componente**
-```jsx
-const { user, loading } = useAuth()
-
-if (loading) return <Loading />
-if (!user) return <LoginPrompt />
-return <ContenidoProtegido />
-```
-
-## 📱 Páginas y Funcionalidades
-
-### Páginas Públicas
-- `/` - Página principal con lista de mascotas
-- `/auth/login` - Inicio de sesión
-- `/auth/registro` - Registro de usuarios
-- `/adoptar` - Lista de mascotas en adopción
-- `/adoptar/[id]` - Perfil de mascota específica
-
-### Páginas Protegidas
-- `/perfil` - Perfil del usuario
-- `/favoritos` - Mascotas favoritas
-- `/historial` - Historial de actividades
-- `/turnos` - Gestión de turnos veterinarios
-- `/perdidos/reportar` - Reportar mascota perdida
-
-### Páginas de Desarrollo
-- `/debug` - Herramienta de debug para autenticación
-- `/perfil/test` - Testing del perfil de usuario
-
-## 🎨 Sistema de UI
-
-### Componentes Base (shadcn/ui)
-
-La aplicación usa **shadcn/ui** como sistema de componentes base:
-
-```
-components/ui/
-├── button.jsx          # Botones con variantes
-├── card.jsx            # Tarjetas de contenido
-├── input.jsx           # Campos de entrada
-├── dropdown-menu.jsx   # Menús desplegables
-├── avatar.jsx          # Avatares de usuario
-├── badge.jsx           # Etiquetas y badges
-└── ... (más componentes)
-```
-
-### Estilos y Theming
-
-- **CSS Framework**: Tailwind CSS
-- **Tokens de diseño**: Variables CSS custom
-- **Tema**: Sistema de colores consistente
-- **Responsive**: Mobile-first design
-
-## 🔌 Integración con Backend
-
-### Endpoints Principales
-
-```javascript
-// Autenticación
-POST /api/auth/login                    // Iniciar sesión
-POST /api/auth/register/usuario         // Registro de usuario
-GET  /api/auth/profile                  // Obtener perfil
-
-// Mascotas
-GET  /api/pets                          // Lista de mascotas
-GET  /api/pets/:id                      // Mascota específica
+// Recuperación
+const token = localStorage.getItem('dalepata-auth-token')
+const user = JSON.parse(localStorage.getItem('dalepata-user'))
 ```
 
 ### Manejo de Errores
 
-```javascript
-// Tipos de errores manejados:
-- 400: Errores de validación
-- 401: No autorizado (token inválido)
-- 403: Prohibido
-- 404: No encontrado
-- 500: Error del servidor
+Implementación centralizada con:
+- Detección de tokens expirados (401)
+- Redirección automática al login cuando la sesión expira
+- Mensajes de error específicos por contexto
+- Logging detallado para desarrollo
 
-// Estrategia de manejo:
-- Logs detallados en desarrollo
-- Mensajes user-friendly
-- Redirección automática en errores de auth
-- Retry automático en errores de red
-```
+## Componentes UI
 
-### Estados de Carga
+El proyecto utiliza **shadcn/ui**, una colección de componentes construidos con Radix UI y Tailwind CSS.
 
-```javascript
-// Estados globales manejados:
-- loading: Cargando inicial de autenticación
-- user: Datos del usuario autenticado
-- error: Errores de autenticación o API
+### Componentes Implementados
 
-// Estados locales por componente:
-- Formularios: submitting, validation errors
-- Listas: fetching, empty states
-- Detalles: loading individual items
-```
+- **Formularios**: Button, Input, Label, Textarea, Select, Checkbox, Radio Group
+- **Navegación**: Dropdown Menu, Navigation Menu, Tabs, Breadcrumb
+- **Feedback**: Alert, Alert Dialog, Toast, Dialog, Popover
+- **Visualización**: Card, Table, Badge, Avatar, Separator
+- **Layout**: Scroll Area, Resizable, Sheet, Sidebar
+- **Datos**: Calendar, Form (React Hook Form), Chart
+- **Otros**: Command, Context Menu, Hover Card, Progress, Skeleton
 
-## 🚀 Flujo de Desarrollo
+### Personalización
 
-### Comandos Principales
+Los componentes se configuran a través de:
+- `tailwind.config.js`: Variables de diseño y tema
+- `components.json`: Configuración de shadcn/ui
+- `app/globals.css`: Estilos globales y variables CSS
 
-```bash
-# Desarrollo
-npm run dev          # Servidor de desarrollo (puerto 3000)
+## Rutas y Navegación
 
-# Construcción
-npm run build        # Build para producción
-npm run start        # Servidor de producción
+### Rutas Públicas
 
-# Linting
-npm run lint         # Verificar código
-```
+- `/`: Landing page con información institucional
+- `/auth/login`: Inicio de sesión
+- `/auth/registro`: Registro de nuevos usuarios
+- `/auth/recuperar-contrasena`: Recuperación de contraseña
+- `/auth/reset-password`: Reset de contraseña
+- `/auth/confirmacion`: Confirmación de registro
 
-### Debugging
+### Rutas Protegidas (Usuario)
 
-#### Herramienta de Debug (`/debug`)
+- `/inicio`: Dashboard principal del usuario
+- `/adoptar`: Catálogo de mascotas disponibles
+- `/adoptar/[id]`: Perfil de mascota y formulario de adopción
+- `/seguimiento`: Seguimiento de solicitudes de adopción
+- `/perdidos`: Mascotas perdidas y encontradas
+- `/perdidos/reportar`: Formulario de reporte
+- `/perfil`: Gestión de perfil de usuario
+- `/favoritos`: Mascotas marcadas como favoritas
+- `/historial`: Historial de actividades del usuario
+- `/notificaciones`: Centro de notificaciones
 
-Página especial para diagnosticar problemas de autenticación:
+### Rutas Administrativas (Refugio)
 
-- **Estado de localStorage**: Tokens y datos guardados
-- **Estado del AuthProvider**: Usuario en context
-- **Información de red**: Estado de conexión con backend
-- **Botones de testing**: Limpiar auth, ir a perfil, etc.
+- `/admin/refugio`: Dashboard del refugio con estadísticas
+- `/admin/refugio/mascotas`: Gestión de mascotas del refugio
+- `/admin/refugio/solicitudes`: Gestión de solicitudes de adopción
+- `/admin/refugio/perdidos`: Reportes de mascotas perdidas
+- `/admin/refugio/configuracion`: Configuración del refugio
 
-#### Logs de Desarrollo
-
-```javascript
-// En development, logs detallados:
-console.log('🔄 Initializing auth...')
-console.log('✅ Login successful')
-console.log('❌ Auth error:', error)
-console.log('📤 API Request:', data)
-console.log('📥 API Response:', response)
-```
-
-## 🔧 Configuración del Entorno
+## Configuración del Proyecto
 
 ### Variables de Entorno
 
+Crear archivo `.env.local` en la raíz del proyecto:
+
 ```env
-# .env.local (no incluir en git)
-NEXT_PUBLIC_API_BASE_URL=http://localhost:3001/api
-NEXT_PUBLIC_SUPABASE_URL=tu_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_supabase_key
+# API Backend
+NEXT_PUBLIC_API_BASE_URL=https://api.dalepata.com/api
+
+# Supabase (Almacenamiento de imágenes)
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# Mapbox (Mapas)
+NEXT_PUBLIC_MAPBOX_TOKEN=your_mapbox_token
 ```
 
-### Puertos por Defecto
+### Instalación
 
-- **Frontend**: `http://localhost:3000`
-- **Backend API**: `http://localhost:3001`
-- **Base de datos**: Configurada en el backend
-
-## 🚨 Troubleshooting
-
-### Problemas Comunes
-
-#### 1. "No puedo acceder a páginas protegidas"
 ```bash
-# Solución:
-1. Ir a /debug
-2. Verificar si hay token y usuario guardados
-3. Si no hay datos, hacer login nuevamente
-4. Si hay datos pero no funciona, verificar backend
+# Instalar dependencias
+pnpm install
+
+# Modo desarrollo
+pnpm dev
+
+# Build de producción
+pnpm build
+
+# Ejecutar producción
+pnpm start
+
+# Linting
+pnpm lint
 ```
 
-#### 2. "Error de CORS"
+### Dependencias Principales
+
+**Core**
+- `next`: 14.2.16
+- `react`: 18.3.1
+- `react-dom`: 18.3.1
+
+**UI y Estilos**
+- `tailwindcss`: 3.4.1
+- `@radix-ui/*`: Componentes UI primitivos
+- `lucide-react`: Iconos
+- `class-variance-authority`: Variantes de componentes
+- `clsx` y `tailwind-merge`: Utilidades de clases
+
+**Formularios y Validación**
+- `react-hook-form`: 7.54.2
+- `zod`: 3.24.1
+- `@hookform/resolvers`: 3.9.1
+
+**Mapas y Geolocalización**
+- `mapbox-gl`: 3.8.0
+- `@mapbox/mapbox-gl-geocoder`: 5.0.3
+
+**Utilidades**
+- `date-fns`: 4.1.0
+- `sweetalert2`: 11.15.3
+
+## Flujos de Usuario Principales
+
+### Flujo de Adopción
+
+1. Usuario navega al catálogo de mascotas (`/adoptar`)
+2. Aplica filtros según sus preferencias
+3. Selecciona una mascota de interés
+4. Visualiza el perfil detallado de la mascota (`/adoptar/[id]`)
+5. Completa el formulario de solicitud de adopción
+6. El sistema crea la solicitud en estado "pendiente"
+7. Usuario puede hacer seguimiento de su solicitud en `/seguimiento`
+8. El refugio recibe una notificación de nueva solicitud
+9. El refugio revisa y aprueba/rechaza la solicitud en `/admin/refugio/solicitudes`
+10. El usuario recibe notificación del resultado
+
+### Flujo de Reporte de Mascota Perdida
+
+1. Usuario accede a `/perdidos/reportar`
+2. Completa el formulario con los datos de la mascota
+3. Selecciona la ubicación en el mapa interactivo
+4. Opcionalmente carga una fotografía de la mascota
+5. El sistema registra el reporte con geolocalización
+6. El reporte aparece en `/perdidos` (vista de lista y mapa)
+7. Otros usuarios pueden visualizar el reporte y reportar avistamientos
+8. El propietario puede marcar la mascota como encontrada
+
+### Flujo Administrativo (Refugio)
+
+1. Refugio accede a su dashboard `/admin/refugio`
+2. Visualiza estadísticas generales del refugio
+3. Registra una nueva mascota en `/admin/refugio/mascotas`
+4. Completa el formulario con datos completos y fotografía
+5. Marca la mascota como disponible para adopción
+6. La mascota aparece en el catálogo público
+7. Recibe solicitudes de adopción en `/admin/refugio/solicitudes`
+8. Revisa la información del solicitante
+9. Aprueba o rechaza la solicitud con comentario
+10. El sistema notifica automáticamente al solicitante
+
+## Características Técnicas Destacadas
+
+### Optimización de Imágenes
+
+Utiliza Next.js Image component con:
+- Lazy loading automático
+- Optimización de tamaño según viewport
+- Formatos modernos (WebP)
+- Placeholders mientras carga
+
+### Server-Side Rendering (SSR)
+
+Utilización estratégica de:
+- Server Components para contenido estático
+- Client Components (`"use client"`) solo donde se necesita interactividad
+- Streaming para mejorar tiempo de carga inicial
+
+### Responsive Design
+
+- Enfoque mobile-first
+- Breakpoints: sm (640px), md (768px), lg (1024px), xl (1280px)
+- Componentes adaptables a diferentes dispositivos
+- Menú lateral colapsable en móviles
+
+### Gestión de Estado
+
+- Context API para autenticación global
+- useState y useEffect para estado local de componentes
+- Custom hooks para lógica reutilizable
+- localStorage para persistencia de sesión
+
+### Validación de Formularios
+
+Integración de React Hook Form + Zod:
+- Validación en tiempo real
+- Mensajes de error personalizados
+- Esquemas de validación tipados
+- Optimización de re-renders
+
+## Consideraciones de Seguridad
+
+- Tokens JWT almacenados en localStorage
+- Validación de permisos en cada request al backend
+- Rutas protegidas mediante HOCs (Higher-Order Components)
+- Sanitización de inputs en formularios
+- CORS configurado correctamente en el backend
+- Comunicación HTTPS en producción
+- Manejo seguro de credenciales
+
+## Despliegue
+
+### Opciones de Despliegue
+
+**Vercel** (Recomendado para Next.js)
 ```bash
-# El backend debe permitir requests desde:
-- http://localhost:3000 (desarrollo)
-- Tu dominio de producción
+pnpm build
+# Deploy automático con git push
 ```
 
-#### 3. "Token expirado"
-```bash
-# El sistema maneja automáticamente:
-- Limpia tokens inválidos
-- Redirige al login
-- Mantiene UX fluida
+**Dokploy con Nixpacks**
+- Auto-detección de Next.js
+- Build automático
+- Variables de entorno configurables en panel
+
+**Docker**
+```dockerfile
+# Ver Dockerfile en la raíz del proyecto
+# Build standalone para producción
 ```
 
-#### 4. "Redirecciones infinitas"
-```bash
-# Verificar middleware.js:
-- No debe tener protección de rutas activa
-- Solo debe hacer NextResponse.next()
-```
+### Configuración de Producción
 
-### Logs de Debug
+1. Configurar variables de entorno en la plataforma de hosting
+2. Asegurar que `NEXT_PUBLIC_API_BASE_URL` apunte a la API de producción
+3. Configurar dominio personalizado
+4. Habilitar SSL/HTTPS
+5. Configurar redirects y rewrites necesarios
 
-Para activar logs detallados:
+## Documentación Adicional
 
-```javascript
-// En api-config.js
-export const API_CONFIG = {
-  DEBUG: true // Activar logs detallados
-}
-```
+- `NOTIFICATIONS_README.md`: Documentación detallada del sistema de notificaciones
+- `NOTIFICATIONS_BACKEND_SPEC.md`: Especificación técnica para implementación en backend
+- `DEPLOY_NIXPACKS.md`: Guía de despliegue con Nixpacks
+- `DEPLOY_DOKPLOY.md`: Guía de despliegue con Dokploy usando Docker
+- `QUICK_DEPLOY.md`: Guía rápida de despliegue
 
-## 📋 Checklist de Funcionalidades
-
-### ✅ Completado
-- [x] Sistema de autenticación con backend
-- [x] Registro y login de usuarios
-- [x] Persistencia de sesión en localStorage
-- [x] Protección de rutas
-- [x] Lista de mascotas desde API
-- [x] Perfil de usuario
-- [x] Dropdown de usuario funcional
-- [x] Páginas de adopción
-- [x] Sistema de debugging
-
-### 🔄 En Desarrollo
-- [ ] Edición de perfil de usuario
-- [ ] Sistema de favoritos funcional
-- [ ] Gestión de turnos veterinarios
-- [ ] Reportar mascotas perdidas
-- [ ] Notificaciones
-
-### 📈 Mejoras Futuras
-- [ ] PWA (Progressive Web App)
-- [ ] Notificaciones push
-- [ ] Chat en tiempo real
-- [ ] Geolocalización
-- [ ] Búsqueda avanzada con filtros
-
-## 🤝 Colaboración
-
-### Para Nuevos Desarrolladores
-
-1. **Clonar y setup inicial**:
-```bash
-git clone [repo-url]
-cd dalepata
-npm install
-npm run dev
-```
-
-2. **Entender el flujo de auth**:
-   - Revisar `backend-auth-provider.js`
-   - Probar `/debug` para entender el estado
-   - Experimentar con login/logout
-
-3. **Estructura de archivos**:
-   - `app/` para páginas (App Router)
-   - `components/` para reutilizables
-   - `lib/` para lógica y API
-
-4. **Debugging**:
-   - Usar `/debug` para problemas de auth
-   - Activar logs en `api-config.js`
-   - DevTools de React para estados
+## Mantenimiento y Desarrollo
 
 ### Convenciones de Código
 
-- **Componentes**: PascalCase (`UserProfile.jsx`)
-- **Hooks**: camelCase con prefix `use` (`useAuth`)
-- **Archivos**: kebab-case (`user-settings.js`)
-- **Constantes**: UPPER_CASE (`API_ENDPOINTS`)
+- Componentes en PascalCase
+- Archivos de componentes con extensión `.jsx` o `.js`
+- Funciones auxiliares en camelCase
+- Constantes en UPPER_SNAKE_CASE
+- Uso de ESLint para consistencia de código
+
+### Control de Versiones
+
+- Repositorio: GitHub
+- Branch principal: `main`
+- Commits descriptivos siguiendo convenciones
+- Pull requests para cambios importantes
+
+## Contacto y Soporte
+
+Para consultas técnicas o reportar issues, contactar al equipo de desarrollo o abrir un issue en el repositorio de GitHub.
 
 ---
 
-## 📞 Contacto y Soporte
-
-Para dudas sobre la implementación o problemas técnicos, consultar:
-
-1. **Logs de debug** en `/debug`
-2. **Console del navegador** para errores
-3. **Terminal del servidor** para errores de build
-4. **Este README** para arquitectura general
-
----
-
-**¡Feliz coding! 🐾✨**
+**Versión**: 1.0.0  
+**Última actualización**: Diciembre 2025  
+**Desarrollado con**: Next.js 14.2.16
