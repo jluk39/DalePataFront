@@ -49,8 +49,6 @@ DalePataFront/
 │   │   └── reportar/page.jsx    # Formulario de reporte
 │   │
 │   ├── perfil/page.js           # Gestión de perfil de usuario
-│   ├── favoritos/page.js        # Mascotas marcadas como favoritas
-│   ├── historial/page.js        # Historial de actividades
 │   ├── notificaciones/page.jsx  # Centro de notificaciones
 │   │
 │   └── admin/                   # Panel administrativo para refugios
@@ -110,9 +108,6 @@ DalePataFront/
 │
 ├── styles/                      # Estilos adicionales
 │   └── globals.css
-│
-└── scripts/                     # Scripts de utilidad
-    └── test-multi-registration.js
 ```
 
 ## Módulos Principales
@@ -353,8 +348,6 @@ Los componentes se configuran a través de:
 - `/perdidos`: Mascotas perdidas y encontradas
 - `/perdidos/reportar`: Formulario de reporte
 - `/perfil`: Gestión de perfil de usuario
-- `/favoritos`: Mascotas marcadas como favoritas
-- `/historial`: Historial de actividades del usuario
 - `/notificaciones`: Centro de notificaciones
 
 ### Rutas Administrativas (Refugio)
@@ -468,45 +461,6 @@ pnpm lint
 9. Aprueba o rechaza la solicitud con comentario
 10. El sistema notifica automáticamente al solicitante
 
-## Características Técnicas Destacadas
-
-### Optimización de Imágenes
-
-Utiliza Next.js Image component con:
-- Lazy loading automático
-- Optimización de tamaño según viewport
-- Formatos modernos (WebP)
-- Placeholders mientras carga
-
-### Server-Side Rendering (SSR)
-
-Utilización estratégica de:
-- Server Components para contenido estático
-- Client Components (`"use client"`) solo donde se necesita interactividad
-- Streaming para mejorar tiempo de carga inicial
-
-### Responsive Design
-
-- Enfoque mobile-first
-- Breakpoints: sm (640px), md (768px), lg (1024px), xl (1280px)
-- Componentes adaptables a diferentes dispositivos
-- Menú lateral colapsable en móviles
-
-### Gestión de Estado
-
-- Context API para autenticación global
-- useState y useEffect para estado local de componentes
-- Custom hooks para lógica reutilizable
-- localStorage para persistencia de sesión
-
-### Validación de Formularios
-
-Integración de React Hook Form + Zod:
-- Validación en tiempo real
-- Mensajes de error personalizados
-- Esquemas de validación tipados
-- Optimización de re-renders
-
 ## Consideraciones de Seguridad
 
 - Tokens JWT almacenados en localStorage
@@ -519,24 +473,12 @@ Integración de React Hook Form + Zod:
 
 ## Despliegue
 
-### Opciones de Despliegue
+### Opción elegida
 
-**Vercel** (Recomendado para Next.js)
-```bash
-pnpm build
-# Deploy automático con git push
-```
-
-**Dokploy con Nixpacks**
+**Dokploy en VPS con Nixpacks**
 - Auto-detección de Next.js
 - Build automático
 - Variables de entorno configurables en panel
-
-**Docker**
-```dockerfile
-# Ver Dockerfile en la raíz del proyecto
-# Build standalone para producción
-```
 
 ### Configuración de Producción
 
@@ -545,31 +487,6 @@ pnpm build
 3. Configurar dominio personalizado
 4. Habilitar SSL/HTTPS
 5. Configurar redirects y rewrites necesarios
-
-## Documentación Adicional
-
-- `NOTIFICATIONS_README.md`: Documentación detallada del sistema de notificaciones
-- `NOTIFICATIONS_BACKEND_SPEC.md`: Especificación técnica para implementación en backend
-- `DEPLOY_NIXPACKS.md`: Guía de despliegue con Nixpacks
-- `DEPLOY_DOKPLOY.md`: Guía de despliegue con Dokploy usando Docker
-- `QUICK_DEPLOY.md`: Guía rápida de despliegue
-
-## Mantenimiento y Desarrollo
-
-### Convenciones de Código
-
-- Componentes en PascalCase
-- Archivos de componentes con extensión `.jsx` o `.js`
-- Funciones auxiliares en camelCase
-- Constantes en UPPER_SNAKE_CASE
-- Uso de ESLint para consistencia de código
-
-### Control de Versiones
-
-- Repositorio: GitHub
-- Branch principal: `main`
-- Commits descriptivos siguiendo convenciones
-- Pull requests para cambios importantes
 
 ## Contacto y Soporte
 
